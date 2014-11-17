@@ -1,0 +1,55 @@
+﻿生成启动时间为 2014/11/17 15:59:16。
+     1>项目“F:\StereoVision-master----改动版\StereoVision\StereoVision.vcxproj”在节点 2 上(Build 个目标)。
+     1>ClCompile:
+         C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\x86_amd64\CL.exe /c /I\include /IDirectShow/Include /Zi /nologo /W3 /WX- /sdl /Od /D _CRT_SECURE_NO_WARNINGS /D WIN32 /D _WINDOWS /D _DEBUG /D _UNICODE /D UNICODE /D _AFXDLL /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Yc"stdafx.h" /Fp"x64\Debug\StereoVision.pch" /Fo"x64\Debug\\" /Fd"x64\Debug\vc110.pdb" /Gd /TP /errorReport:prompt stdafx.cpp
+         stdafx.cpp
+         C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\x86_amd64\CL.exe /c /I\include /IDirectShow/Include /Zi /nologo /W3 /WX- /sdl /Od /D _CRT_SECURE_NO_WARNINGS /D WIN32 /D _WINDOWS /D _DEBUG /D _UNICODE /D UNICODE /D _AFXDLL /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Yu"stdafx.h" /Fp"x64\Debug\StereoVision.pch" /Fo"x64\Debug\\" /Fd"x64\Debug\vc110.pdb" /Gd /TP /errorReport:prompt CameraDS.cpp CvvImage.cpp ParamServer.cpp PointCloudAnalyzer.cpp StereoCalib.cpp StereoMatch.cpp StereoVision.cpp StereoVisionDlg.cpp
+         StereoVisionDlg.cpp
+     1>F:\StereoVision-master----改动版\StereoVision\DirectShow\Include\uuids.h : warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+     1>StereoVisionDlg.cpp(776): warning C4800: “BOOL”: 将值强制为布尔值“true”或“false”(性能警告)
+     1>StereoVisionDlg.cpp(833): warning C4800: “BOOL”: 将值强制为布尔值“true”或“false”(性能警告)
+     1>StereoVisionDlg.cpp(925): warning C4267: “=”: 从“size_t”转换到“int”，可能丢失数据
+     1>StereoVisionDlg.cpp(930): warning C4267: “=”: 从“size_t”转换到“int”，可能丢失数据
+     1>StereoVisionDlg.cpp(941): warning C4244: “参数”: 从“double”转换到“float”，可能丢失数据
+     1>StereoVisionDlg.cpp(1275): warning C4800: “BOOL”: 将值强制为布尔值“true”或“false”(性能警告)
+     1>StereoVisionDlg.cpp(1365): warning C4800: “BOOL”: 将值强制为布尔值“true”或“false”(性能警告)
+     1>StereoVisionDlg.cpp(2197): warning C4244: “初始化”: 从“intptr_t”转换到“long”，可能丢失数据
+         StereoVision.cpp
+     1>F:\StereoVision-master----改动版\StereoVision\DirectShow\Include\uuids.h : warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+         StereoMatch.cpp
+     1>StereoMatch.cpp(109): warning C4101: “e”: 未引用的局部变量
+     1>StereoMatch.cpp(489): warning C4244: “初始化”: 从“float”转换到“int”，可能丢失数据
+     1>StereoMatch.cpp(493): warning C4244: “初始化”: 从“float”转换到“int”，可能丢失数据
+     1>StereoMatch.cpp(536): warning C4244: “初始化”: 从“float”转换到“int”，可能丢失数据
+     1>StereoMatch.cpp(537): warning C4244: “初始化”: 从“float”转换到“int”，可能丢失数据
+         StereoCalib.cpp
+     1>StereoCalib.cpp(443): warning C4267: “初始化”: 从“size_t”转换到“int”，可能丢失数据
+     1>StereoCalib.cpp(445): warning C4018: “<”: 有符号/无符号不匹配
+     1>StereoCalib.cpp(452): warning C4018: “<”: 有符号/无符号不匹配
+     1>StereoCalib.cpp(613): warning C4267: “+=”: 从“size_t”转换到“int”，可能丢失数据
+         PointCloudAnalyzer.cpp
+     1>PointCloudAnalyzer.cpp(167): warning C4267: “初始化”: 从“size_t”转换到“int”，可能丢失数据
+         ParamServer.cpp
+         CvvImage.cpp
+         CameraDS.cpp
+     1>F:\StereoVision-master----改动版\StereoVision\DirectShow\Include\uuids.h : warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+         正在生成代码...
+       ResourceCompile:
+         C:\Program Files (x86)\Windows Kits\8.0\bin\x86\rc.exe /D _DEBUG /D _UNICODE /D UNICODE /D _AFXDLL /l"0x0804" /Ix64\Debug\ /nologo /fo"x64\Debug\StereoVision.res" StereoVision.rc 
+       Link:
+         C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\x86_amd64\link.exe /ERRORREPORT:PROMPT /OUT:"F:\StereoVision-master----改动版\x64\Debug\StereoVision.exe" /INCREMENTAL /NOLOGO /LIBPATH:\x64\vc11\lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /manifestinput:"C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\Include\Manifest\dpiaware.manifest" /DEBUG /PDB:"F:\StereoVision-master----改动版\x64\Debug\StereoVision.pdb" /SUBSYSTEM:WINDOWS /TLBID:1 /ENTRY:"wWinMainCRTStartup" /DYNAMICBASE /NXCOMPAT /IMPLIB:"F:\StereoVision-master----改动版\x64\Debug\StereoVision.lib" /MACHINE:X64 x64\Debug\StereoVision.res
+         x64\Debug\CameraDS.obj
+         x64\Debug\CvvImage.obj
+         x64\Debug\ParamServer.obj
+         x64\Debug\PointCloudAnalyzer.obj
+         x64\Debug\stdafx.obj
+         x64\Debug\StereoCalib.obj
+         x64\Debug\StereoMatch.obj
+         x64\Debug\StereoVision.obj
+         x64\Debug\StereoVisionDlg.obj
+         StereoVision.vcxproj -> F:\StereoVision-master----改动版\x64\Debug\StereoVision.exe
+     1>已完成生成项目“F:\StereoVision-master----改动版\StereoVision\StereoVision.vcxproj”(Build 个目标)的操作。
+
+生成成功。
+
+已用时间 00:00:28.48

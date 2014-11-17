@@ -20,7 +20,7 @@ StereoCalib::~StereoCalib(void)
 }
 
 
-/*----------------------------
+/**----------------------------
  * 功能 : 初始化棋盘角点数据信息
  *----------------------------
  * 函数 : StereoCalib::initCornerData
@@ -35,14 +35,14 @@ StereoCalib::~StereoCalib(void)
  */
 int StereoCalib::initCornerData(int nImages, cv::Size imageSize, cv::Size boardSize, float squareWidth, CornerDatas& cornerDatas)
 {
-	cornerDatas.nImages = nImages;
-	cornerDatas.imageSize = imageSize;
-	cornerDatas.boardSize = boardSize;
-	cornerDatas.nPoints = nImages * boardSize.width * boardSize.height;
-	cornerDatas.nPointsPerImage = boardSize.width * boardSize.height;
-	cornerDatas.objectPoints.resize(nImages, vector<cv::Point3f>(cornerDatas.nPointsPerImage, cv::Point3f(0,0,0)));
-	cornerDatas.imagePoints1.resize(nImages, vector<cv::Point2f>(cornerDatas.nPointsPerImage, cv::Point2f(0,0)));
-	cornerDatas.imagePoints2.resize(nImages, vector<cv::Point2f>(cornerDatas.nPointsPerImage, cv::Point2f(0,0)));
+	cornerDatas.nImages = nImages;//棋盘图象数
+	cornerDatas.imageSize = imageSize;//图像分辨率
+	cornerDatas.boardSize = boardSize;//棋盘尺寸
+	cornerDatas.nPoints = nImages * boardSize.width * boardSize.height;//棋盘角点总数
+	cornerDatas.nPointsPerImage = boardSize.width * boardSize.height;//每个图像中的棋盘角数
+	cornerDatas.objectPoints.resize(nImages, vector<cv::Point3f>(cornerDatas.nPointsPerImage, cv::Point3f(0,0,0)));//向世界坐标序列中加入新的角点
+	cornerDatas.imagePoints1.resize(nImages, vector<cv::Point2f>(cornerDatas.nPointsPerImage, cv::Point2f(0,0)));//向左视图中加入新的角点
+	cornerDatas.imagePoints2.resize(nImages, vector<cv::Point2f>(cornerDatas.nPointsPerImage, cv::Point2f(0,0)));//向右视图中加入新的角点
 
 	//计算棋盘角点的世界坐标值
 	int i,j,k,n;
@@ -51,13 +51,13 @@ int StereoCalib::initCornerData(int nImages, cv::Size imageSize, cv::Size boardS
 		n = 0;
 		for( j = 0; j < boardSize.height; j++ )
 			for( k = 0; k < boardSize.width; k++ )
-				cornerDatas.objectPoints[i][n++] = cv::Point3f(j*squareWidth, k*squareWidth, 0);
+				cornerDatas.objectPoints[i][n++] = cv::Point3f(j*squareWidth, k*squareWidth, 0);//根据矩形的数据计算世界坐标值
 	}
 
 	return 1;
 }
 
-/*----------------------------
+/**----------------------------
  * 功能 : 根据成功检测的棋盘数目修改棋盘角点数据
  *----------------------------
  * 函数 : StereoCalib::resizeCornerData
@@ -69,6 +69,7 @@ int StereoCalib::initCornerData(int nImages, cv::Size imageSize, cv::Size boardS
  */
 int StereoCalib::resizeCornerData(int nImages, CornerDatas& cornerDatas)
 {
+	//将数据更新为成功检测后的数据
 	cornerDatas.nImages = nImages;
 	cornerDatas.nPoints = nImages * cornerDatas.nPointsPerImage;
 	cornerDatas.objectPoints.resize(nImages);
@@ -78,7 +79,7 @@ int StereoCalib::resizeCornerData(int nImages, CornerDatas& cornerDatas)
 	return 1;
 }
 
-/*----------------------------
+/**----------------------------
  * 功能 : 载入棋盘角点数据信息
  *----------------------------
  * 函数 : StereoCalib::loadCornerData
@@ -98,10 +99,10 @@ int StereoCalib::loadCornerData(const char* filename, CornerDatas& cornerDatas)
 		fs["nPointsPerImage"]	>> cornerDatas.nPointsPerImage;
 
 		cv::FileNodeIterator it = fs["imageSize"].begin(); 
-		it >> cornerDatas.imageSize.width >> cornerDatas.imageSize.height;
+		it >> cornerDatas.imageSize.width >> cornerDatas.imageSize.height;//载入图片大小信息
 
 		cv::FileNodeIterator bt = fs["boardSize"].begin(); 
-		bt >> cornerDatas.boardSize.width >> cornerDatas.boardSize.height;
+		bt >> cornerDatas.boardSize.width >> cornerDatas.boardSize.height;//载入边界大小信息
 		
 		for (int i=0; i<cornerDatas.nImages;i++) 
 		{
@@ -145,7 +146,7 @@ int StereoCalib::loadCornerData(const char* filename, CornerDatas& cornerDatas)
 }
 
 
-/*----------------------------
+/**----------------------------
  * 功能 : 保存棋盘角点数据信息
  *----------------------------
  * 函数 : StereoCalib::saveCornerData
@@ -215,7 +216,7 @@ int StereoCalib::saveCornerData(const char* filename, const CornerDatas& cornerD
 }
 
 
-/*----------------------------
+/**----------------------------
  * 功能 : 检测棋盘角点
  *----------------------------
  * 函数 : StereoCalib::detectCorners
@@ -230,7 +231,7 @@ int StereoCalib::saveCornerData(const char* filename, const CornerDatas& cornerD
 int StereoCalib::detectCorners(cv::Mat& img1, cv::Mat& img2, CornerDatas& cornerDatas, int imageCount)
 {
 	bool stereoMode = true;
-	if (img2.empty())
+	if (img2.empty())//如果右视图是空，则不寻找角点。
 	{
 		stereoMode = false;
 	}
@@ -242,11 +243,16 @@ int StereoCalib::detectCorners(cv::Mat& img1, cv::Mat& img2, CornerDatas& corner
 	// 寻找棋盘及其角点
 	bool found1 = false;
 	bool found2 = true;
-	int flags = cv::CALIB_CB_ADAPTIVE_THRESH + cv::CALIB_CB_NORMALIZE_IMAGE + cv::CALIB_CB_FAST_CHECK;
+	int flags = cv::CALIB_CB_ADAPTIVE_THRESH + cv::CALIB_CB_NORMALIZE_IMAGE + cv::CALIB_CB_FAST_CHECK;//设定各种操作标志；
+	/**寻找角点的flag的各种标志操作，其值可以为0或者以下操作的组合：
+	* cv::CALIB_CB_ADAPTIVE_THRESH  使用自适应阈值（通过平均图像亮度计算得到）将图像转换为黑白图，而不是一个固定的阈值。 
+	* cv::CALIB_CB_NORMALIZE_IMAGE  在利用固定阈值或者自适应的阈值进行二值化之前，先使用cvNormalizeHist来均衡化图像亮度。 
+	* cv::CV_CALIB_CB_FILTER_QUADS  使用其他的准则（如轮廓面积，周长，方形形状）来去除在轮廓检测阶段检测到的错误方块。  
+	*/
 
-	found1 = findChessboardCorners(img1, cornerDatas.boardSize, corners1, flags);
+	found1 = findChessboardCorners(img1, cornerDatas.boardSize, corners1, flags);//寻找左视图角点
 	if (stereoMode) 
-		found2 = findChessboardCorners(img2, cornerDatas.boardSize, corners2, flags);
+		found2 = findChessboardCorners(img2, cornerDatas.boardSize, corners2, flags);//找右视图角点
 
 	// 若左右视图都成功检测到所有角点
 	// 则将检测到的角点坐标精确化
@@ -259,7 +265,7 @@ int StereoCalib::detectCorners(cv::Mat& img1, cv::Mat& img2, CornerDatas& corner
 			cvtColor(img2, gray2, cv::COLOR_RGB2GRAY);
 
 		//计算角点的精确坐标
-		cv::Size regionSize(11, 11);
+		cv::Size regionSize(11, 11);//设置区域大小
 		cornerSubPix(gray1, corners1, regionSize, cv::Size(-1,-1), cv::TermCriteria(cv::TermCriteria::EPS|cv::TermCriteria::MAX_ITER, 30, 0.05));
 		if (stereoMode) 
 			cornerSubPix(gray2, corners2, regionSize, cv::Size(-1,-1), cv::TermCriteria(cv::TermCriteria::EPS|cv::TermCriteria::MAX_ITER, 30, 0.05));
@@ -285,7 +291,7 @@ int StereoCalib::detectCorners(cv::Mat& img1, cv::Mat& img2, CornerDatas& corner
 }
 
 
-/*----------------------------
+/**----------------------------
  * 功能 : 在图像右下角显示指定文字信息
  *----------------------------
  * 函数 : StereoCalib::showText
@@ -327,7 +333,7 @@ void StereoCalib::showText(cv::Mat& img, string text)
 }
 
 
-/*----------------------------
+/**----------------------------
  * 功能 : 载入已标定好的摄像机内部参数
  *----------------------------
  * 函数 : StereoCalib::loadCameraParams
@@ -382,7 +388,7 @@ int StereoCalib::loadCameraParams(const char* filename, CameraParams& cameraPara
 }
 
 
-/*----------------------------
+/**----------------------------
  * 功能 : 保存已标定好的摄像机内部参数
  *----------------------------
  * 函数 : StereoCalib::saveCameraParams
@@ -461,7 +467,7 @@ int StereoCalib::saveCameraParams(const CameraParams& cameraParams, const char* 
 }
 
 
-/*----------------------------
+/**----------------------------
  * 功能 : 执行单目摄像机标定
  *		 注意此函数不能在 calibrateStereoCamera 中调用，只适合外部调用
  *		 棋盘角点的图像坐标默认存放在 cornerDatas.imagePoints1 中
@@ -495,7 +501,7 @@ int StereoCalib::calibrateSingleCamera(CornerDatas& cornerDatas, CameraParams& c
 }
 
 
-/*----------------------------
+/**----------------------------
  * 功能 : 执行双目摄像机标定
  *		 若每个摄像机尚未标定，则首先进行单目标定，再进行双目标定
  *----------------------------
@@ -514,13 +520,24 @@ int StereoCalib::calibrateStereoCamera(CornerDatas& cornerDatas, StereoParams& s
 		/***
 		 *	执行单目定标
 		 */
+		/**各个参数含义
+		* objectPoints 棋盘角点的世界坐标序列
+		* imagePoints1 左视图棋盘角点像素坐标序列
+		* imagePoints2 左视图棋盘角点像素坐标序列
+		* imageSize 图像分辨率 
+		* cameraMatrix 摄像机矩阵
+		* distortionCoefficients 摄像头畸变参数
+		* rotations 棋盘图片旋转矩阵 
+		* translations 图片的平移向量
+		* flags 单目标定所用的标志位
+		*/
 		cv::calibrateCamera(
-			cornerDatas.objectPoints, 
+			cornerDatas.objectPoints,
 			cornerDatas.imagePoints1, 
-			cornerDatas.imageSize, 
-			stereoParams.cameraParams1.cameraMatrix, 
+			cornerDatas.imageSize,
+			stereoParams.cameraParams1.cameraMatrix,
 			stereoParams.cameraParams1.distortionCoefficients,
-			stereoParams.cameraParams1.rotations, 
+			stereoParams.cameraParams1.rotations,
 			stereoParams.cameraParams1.translations,
 			stereoParams.cameraParams1.flags
 			);
@@ -544,7 +561,8 @@ int StereoCalib::calibrateStereoCamera(CornerDatas& cornerDatas, StereoParams& s
 	}
 
 	stereoParams.imageSize = cornerDatas.imageSize;
-
+	
+	//执行双目标定
 	cv::stereoCalibrate(
 		cornerDatas.objectPoints,
 		cornerDatas.imagePoints1,
@@ -562,12 +580,12 @@ int StereoCalib::calibrateStereoCamera(CornerDatas& cornerDatas, StereoParams& s
 		stereoParams.flags +
 		cv::CALIB_FIX_K3 + cv::CALIB_FIX_K4 + cv::CALIB_FIX_K5
 		);
-
+	//CALIB_FIX_K3，CALIB_FIX_K4，CALIB_FIX_K5 是双目标定参数，用来增强标定效果
 	return 1;
 }
 
 
-/*----------------------------
+/**----------------------------
  * 功能 : 计算单目标定误差
  *----------------------------
  * 函数 : StereoCalib::getCameraCalibrateError
@@ -616,7 +634,7 @@ int StereoCalib::getCameraCalibrateError(vector<vector<cv::Point3f> >& _objectPo
 }
 
 
-/*----------------------------
+/**----------------------------
  * 功能 : 计算双目标定误差
  *----------------------------
  * 函数 : StereoCalib::getStereoCalibrateError
@@ -637,7 +655,7 @@ int StereoCalib::getStereoCalibrateError(CornerDatas& cornerDatas, StereoParams&
 	
 	vector<cv::Vec3f> epilines[2];
 	vector<vector<cv::Point2f> > imagePoints[2];
-	cv::Mat cameraMatrix[2], distCoeffs[2];
+	cv::Mat cameraMatrix[2], distCoeffs[2];//*cameraMatrix为摄像机内矩阵     *distCoeffs为畸变系数向量
 	int npoints = 0;
 	int i,j,k;
 
@@ -674,13 +692,13 @@ int StereoCalib::getStereoCalibrateError(CornerDatas& cornerDatas, StereoParams&
 		}
 		npoints += npt;
 	}
-	err /= npoints;
+	err /= npoints;//误差为对极限误差与整个图片像素空间的比值
 
 	return 1;
 }
 
 
-/*----------------------------------
+/**----------------------------------
  * 功能 : 生成单个摄像头的校正矩阵
  *----------------------------------
  * 函数 : StereoCalib::rectifySingleCamera
@@ -692,10 +710,12 @@ int StereoCalib::getStereoCalibrateError(CornerDatas& cornerDatas, StereoParams&
  */
 int StereoCalib::rectifySingleCamera(CameraParams& cameraParams, RemapMatrixs& remapMatrixs)
 {
+	//初始化
 	cv::initUndistortRectifyMap(
 		cameraParams.cameraMatrix,
 		cameraParams.distortionCoefficients,
 		cv::Mat(),
+		//得到自由比例参数的新摄像机
 		getOptimalNewCameraMatrix(
 			cameraParams.cameraMatrix, 
 			cameraParams.distortionCoefficients, 
@@ -709,7 +729,7 @@ int StereoCalib::rectifySingleCamera(CameraParams& cameraParams, RemapMatrixs& r
 }
 
 
-/*----------------------------
+/**----------------------------
  * 功能 : 执行双目摄像机校正，生成双目校正数据
  *----------------------------
  * 函数 : StereoCalib::rectifyStereoCamera
@@ -744,7 +764,7 @@ int StereoCalib::rectifyStereoCamera(CornerDatas& cornerDatas, StereoParams& ste
 		stereoParams.rotation,
 		stereoParams.translation,
 		R1,R2, P1, P2, Q, 
-		cv::CALIB_ZERO_DISPARITY,
+		cv::CALIB_ZERO_DISPARITY,//使每个相机的主点在校正后的图像上有相同的像素坐标
 		stereoParams.alpha, 
 		stereoParams.imageSize,
 		&roi1, &roi2);
@@ -753,6 +773,8 @@ int StereoCalib::rectifyStereoCamera(CornerDatas& cornerDatas, StereoParams& ste
 	if (method == RECTIFY_HARTLEY)
 	{
 		cv::Mat F, H1, H2;
+		//由两幅图的对应点计算出基本矩阵
+		//cv::FM_8POINT – 8-点算法，点数目 >= 8
 		F = findFundamentalMat(
 			cornerDatas.imagePoints1,
 			cornerDatas.imagePoints2,
@@ -786,7 +808,7 @@ int StereoCalib::rectifyStereoCamera(CornerDatas& cornerDatas, StereoParams& ste
 		remapMatrixs.mX2, remapMatrixs.mY2);
 
 	//输出数据
-	Q.copyTo(remapMatrixs.Q);
+	Q.copyTo(remapMatrixs.Q);//计算三维点云的 Q 矩阵
 	remapMatrixs.roi1 = roi1;
 	remapMatrixs.roi2 = roi2;
 
@@ -794,7 +816,7 @@ int StereoCalib::rectifyStereoCamera(CornerDatas& cornerDatas, StereoParams& ste
 }
 
 
-/*----------------------------
+/**----------------------------
  * 功能 : 保存双目校正参数
  *----------------------------
  * 函数 : StereoCalib::saveCalibrationDatas
@@ -803,7 +825,7 @@ int StereoCalib::rectifyStereoCamera(CornerDatas& cornerDatas, StereoParams& ste
  *
  * 参数 : filename		[in]	保存路径/文件名
  * 参数 : method			[in]	双目校正方法
- * 参数 : cornerDatas	[in]	棋盘角点数据
+ * 参	数 : cornerDatas	[in]	棋盘角点数据
  * 参数 : stereoParams	[in]	双目标定结果
  * 参数 : remapMatrixs	[in]	图像校正像素映射矩阵
  */
@@ -868,7 +890,7 @@ int StereoCalib::saveCalibrationDatas(const char* filename, RECTIFYMETHOD method
 }
 
 
-/*----------------------------------
+/**----------------------------------
  * 功能 : 对图像进行校正
  *----------------------------------
  * 函数 : StereoCalib::remapImage

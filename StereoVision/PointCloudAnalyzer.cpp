@@ -21,7 +21,7 @@ PointCloudAnalyzer::~PointCloudAnalyzer(void)
 }
 
 
-/*----------------------------
+/**----------------------------
  * 功能 : 检测近距目标，输出目标信息序列
  *----------------------------
  * 函数 : PointCloudAnalyzer::detectNearObject
@@ -47,12 +47,12 @@ void PointCloudAnalyzer::detectNearObject(cv::Mat& image, cv::Mat& pointCloud, v
 
 	// 根据深度阈值进行二值化处理
 	double maxVal = 0, minVal = 0;
-	cv::Mat depthThresh = cv::Mat::zeros(depth.rows, depth.cols, CV_8UC1);
-	cv::minMaxLoc(depth, &minVal, &maxVal);
+	cv::Mat depthThresh = cv::Mat::zeros(depth.rows, depth.cols, CV_8UC1);//生成全零矩阵，初始化depthThresh
+	cv::minMaxLoc(depth, &minVal, &maxVal);//获取最大视差
 	double thrVal = minVal * 1.5;
-	threshold(depth, depthThresh, thrVal, 255, CV_THRESH_BINARY_INV);
-	depthThresh.convertTo(depthThresh, CV_8UC1);
-	imageDenoising(depthThresh, 3);
+	threshold(depth, depthThresh, thrVal, 255, CV_THRESH_BINARY_INV);//二值化处理图像
+	depthThresh.convertTo(depthThresh, CV_8UC1);//深度转换
+	imageDenoising(depthThresh, 3);//对图像进行去噪处理，使得所得的图像分层更为清晰
 
 	// 获取离摄像头较近的物体信息
 	parseCandidates(depthThresh, depth, objectInfos);
@@ -62,7 +62,7 @@ void PointCloudAnalyzer::detectNearObject(cv::Mat& image, cv::Mat& pointCloud, v
 }
 
 
-/*----------------------------
+/**----------------------------
  * 功能 : 图像去噪
  *----------------------------
  * 函数 : PointCloudAnalyzer::imageDenoising
@@ -87,7 +87,7 @@ void PointCloudAnalyzer::imageDenoising( cv::Mat& img, int iters )
 }
 
 
-/*----------------------------
+/**----------------------------
  * 功能 : 生成近距物体信息序列
  *----------------------------
  * 函数 : PointCloudAnalyzer::parseCandidates
@@ -102,7 +102,7 @@ void PointCloudAnalyzer::parseCandidates(cv::Mat& objects, cv::Mat& depthMap, ve
 {
 	// 提取物体轮廓
 	vector<vector<cv::Point> > contours;	// 物体轮廓点链
-	findContours(objects, contours, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_SIMPLE);
+	findContours(objects, contours, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_SIMPLE);//检测轮廓
 
 	// 分析轮廓
 	double areaThresh = 0.005 * depthMap.rows * depthMap.cols;
@@ -119,7 +119,7 @@ void PointCloudAnalyzer::parseCandidates(cv::Mat& objects, cv::Mat& depthMap, ve
 
 			// 填充物体内部轮廓作为掩码区域
 			mask = cv::Scalar(0);
-			drawContours(mask, contours, objID, cv::Scalar(255), -1);
+			drawContours(mask, contours, objID, cv::Scalar(255), -1);//绘制轮廓
 
 			// 计算轮廓矩形
 			object.boundRect = boundingRect( contour );
@@ -152,7 +152,7 @@ void PointCloudAnalyzer::parseCandidates(cv::Mat& objects, cv::Mat& depthMap, ve
 }
 
 
-/*----------------------------
+/**----------------------------
  * 功能 : 绘制近距物体尺寸和位置
  *----------------------------
  * 函数 : PointCloudAnalyzer::showObjectInfo
@@ -170,7 +170,7 @@ void PointCloudAnalyzer::showObjectInfo(vector<ObjectInfo>& objectInfos, cv::Mat
 	for (int i = 0; i < showCount; i++)
 	{
 		//物体中心
-		circle(outImage, objectInfos[i].center, 3, CV_RGB(0,0,255), 2);
+		circle(outImage, objectInfos[i].center, 3, CV_RGB(0,0,255), 2);//在物体中心画一个小圆
 		
 		//物体最小矩形
 		cv::Point2f rect_points[4]; 

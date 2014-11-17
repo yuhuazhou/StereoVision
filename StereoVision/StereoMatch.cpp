@@ -12,7 +12,7 @@ StereoMatch::~StereoMatch(void)
 }
 
 
-/*----------------------------
+/**----------------------------
  * 功能 : 初始化内部变量，载入双目定标结果数据
  *----------------------------
  * 函数 : StereoMatch::init
@@ -33,7 +33,7 @@ int StereoMatch::init(int imgWidth, int imgHeight, const char* xmlFilePath)
 }
 
 
-/*----------------------------
+/**----------------------------
  * 功能 : 载入双目定标结果数据
  *----------------------------
  * 函数 : StereoMatch::loadCalibData
@@ -62,7 +62,7 @@ int StereoMatch::loadCalibData(const char* xmlFilePath)
 		it >> imageSize.width >> imageSize.height;
 		if (imageSize.width != m_frameWidth || imageSize.height != m_frameHeight)
 		{
-			return (-1);
+			return (-1);//图像比例大小不符合要求
 		}
 
 		vector<int> roiVal1;
@@ -102,21 +102,21 @@ int StereoMatch::loadCalibData(const char* xmlFilePath)
 		fs["rectifyMethod"] >> method;
 		if (method != "BOUGUET")
 		{
-			return (-2);
+			return (-2);//如果标定方法不是BOUGUET方法，则无法生成点云
 		}
 
 	}
 	catch (std::exception& e)
 	{	
 		m_Calib_Data_Loaded = false;
-		return (-99);	
+		return (-99);	//图像参数读取失败
 	}
 	
 	return 1;
 }
 
 
-/*----------------------------
+/**----------------------------
  * 功能 : 基于 BM 算法计算视差
  *----------------------------
  * 函数 : StereoMatch::bmMatch
@@ -152,10 +152,13 @@ int StereoMatch::bmMatch(cv::Mat& frameLeft, cv::Mat& frameRight, cv::Mat& dispa
 
 	// 校正图像，使左右视图行对齐	
 	cv::Mat img1remap, img2remap;
-	if (m_Calib_Data_Loaded)
+	if (m_Calib_Data_Loaded)//成功载入标定参数
 	{
+		//m_Calib_Mat_Remap_X_L    左视图畸变校正像素坐标映射矩阵 X
+		//m_Calib_Mat_Remap_X_R    左视图畸变校正像素坐标映射矩阵 R
 		remap(img1proc, img1remap, m_Calib_Mat_Remap_X_L, m_Calib_Mat_Remap_Y_L, cv::INTER_LINEAR);		// 对用于视差计算的画面进行校正
 		remap(img2proc, img2remap, m_Calib_Mat_Remap_X_R, m_Calib_Mat_Remap_Y_R, cv::INTER_LINEAR);
+		
 	} 
 	else
 	{
@@ -163,10 +166,14 @@ int StereoMatch::bmMatch(cv::Mat& frameLeft, cv::Mat& frameRight, cv::Mat& dispa
 		img2remap = img2proc;
 	}
 
+	//imshow("img2remap",img2remap);
+
 	// 对左右视图的左边进行边界延拓，以获取与原始视图相同大小的有效视差区域
 	cv::Mat img1border, img2border;
+	// numberOfDisparities  视差参数
 	if (m_numberOfDisparies != m_BM.state->numberOfDisparities)
 		m_numberOfDisparies = m_BM.state->numberOfDisparities;
+	//2D阵列复制到一个更大的目标阵列的src使用外部部件的外推
 	copyMakeBorder(img1remap, img1border, 0, 0, m_BM.state->numberOfDisparities, 0, IPL_BORDER_REPLICATE);
 	copyMakeBorder(img2remap, img2border, 0, 0, m_BM.state->numberOfDisparities, 0, IPL_BORDER_REPLICATE);
 
@@ -184,19 +191,19 @@ int StereoMatch::bmMatch(cv::Mat& frameLeft, cv::Mat& frameRight, cv::Mat& dispa
 		remap(frameLeft, imageLeft, m_Calib_Mat_Remap_X_L, m_Calib_Mat_Remap_Y_L, cv::INTER_LINEAR);
 	else
 		frameLeft.copyTo(imageLeft);
-	rectangle(imageLeft, m_Calib_Roi_L, CV_RGB(0,0,255), 3);
+	rectangle(imageLeft, m_Calib_Roi_L, CV_RGB(0,0,255), 3);//识别到的物体用矩形框住
 
 	if (m_Calib_Data_Loaded)
 		remap(frameRight, imageRight, m_Calib_Mat_Remap_X_R, m_Calib_Mat_Remap_Y_R, cv::INTER_LINEAR);
 	else
 		frameRight.copyTo(imageRight);
-	rectangle(imageRight, m_Calib_Roi_R, CV_RGB(0,0,255), 3);
+	rectangle(imageRight, m_Calib_Roi_R, CV_RGB(0,0,255), 3);//识别到的物体用矩形框住
 
 	return 1;
 }
 
 
-/*----------------------------
+/**----------------------------
  * 功能 : 基于 SGBM 算法计算视差
  *----------------------------
  * 函数 : StereoMatch::sgbmMatch
@@ -269,7 +276,7 @@ int StereoMatch::sgbmMatch(cv::Mat& frameLeft, cv::Mat& frameRight, cv::Mat& dis
 }
 
 
-/*----------------------------
+/**----------------------------
  * 功能 : 基于 VAR 算法计算视差
  *----------------------------
  * 函数 : StereoMatch::varMatch
@@ -309,6 +316,7 @@ int StereoMatch::varMatch(cv::Mat& frameLeft, cv::Mat& frameRight, cv::Mat& disp
 	{
 		remap(img1proc, img1remap, m_Calib_Mat_Remap_X_L, m_Calib_Mat_Remap_Y_L, cv::INTER_LINEAR);		// 对用于视差计算的画面进行校正
 		remap(img2proc, img2remap, m_Calib_Mat_Remap_X_R, m_Calib_Mat_Remap_Y_R, cv::INTER_LINEAR);
+		
 	} 
 	else
 	{
@@ -342,7 +350,7 @@ int StereoMatch::varMatch(cv::Mat& frameLeft, cv::Mat& frameRight, cv::Mat& disp
 }
 
 
-/*----------------------------
+/**----------------------------
  * 功能 : 计算三维点云
  *----------------------------
  * 函数 : StereoMatch::getPointClouds
@@ -364,7 +372,6 @@ int StereoMatch::getPointClouds(cv::Mat& disparity, cv::Mat& pointClouds)
     pointClouds *= 1.6;
 	
 	// 校正 Y 方向数据，正负反转
-	// 原理参见：http://blog.csdn.net/chenyusiyuan/article/details/5970799 
 	for (int y = 0; y < pointClouds.rows; ++y)
 	{
 		for (int x = 0; x < pointClouds.cols; ++x)
@@ -379,7 +386,7 @@ int StereoMatch::getPointClouds(cv::Mat& disparity, cv::Mat& pointClouds)
 }
 
 
-/*----------------------------
+/**----------------------------
  * 功能 : 获取伪彩色视差图
  *----------------------------
  * 函数 : StereoMatch::getDisparityImage
@@ -394,18 +401,18 @@ int StereoMatch::getDisparityImage(cv::Mat& disparity, cv::Mat& disparityImage, 
 {
 	// 将原始视差数据的位深转换为 8 位
 	cv::Mat disp8u;
-	if (disparity.depth() != CV_8U)
+	if (disparity.depth() != CV_8U)//视差数据的位深不是八位uchar型
 	{
-		if (disparity.depth() == CV_8S)
+		if (disparity.depth() == CV_8S)//如果视差数据的位深是八位char型
 		{
-			disparity.convertTo(disp8u, CV_8U);
+			disparity.convertTo(disp8u, CV_8U);//将位深转换为八位
 		} 
 		else
 		{
-			disparity.convertTo(disp8u, CV_8U, 255/(m_numberOfDisparies*16.));
+			disparity.convertTo(disp8u, CV_8U, 255/(m_numberOfDisparies*16.));//尽享相关处理
 		}
 	} 
-	else
+	else//如果视差数据的位深是八位uchar型
 	{
 		disp8u = disparity;
 	}
@@ -415,7 +422,7 @@ int StereoMatch::getDisparityImage(cv::Mat& disparity, cv::Mat& disparityImage, 
 	{
 		if (disparityImage.empty() || disparityImage.type() != CV_8UC3 || disparityImage.size() != disparity.size())
 		{
-			disparityImage = cv::Mat::zeros(disparity.rows, disparity.cols, CV_8UC3);
+			disparityImage = cv::Mat::zeros(disparity.rows, disparity.cols, CV_8UC3);//生成全零矩阵
 		}
 
 		for (int y=0;y<disparity.rows;y++)
@@ -447,7 +454,7 @@ int StereoMatch::getDisparityImage(cv::Mat& disparity, cv::Mat& disparityImage, 
 }
 
 
-/*----------------------------
+/**----------------------------
  * 功能 : 获取环境俯视图
  *----------------------------
  * 函数 : StereoMatch::savePointClouds
@@ -483,7 +490,7 @@ void StereoMatch::getTopDownView(cv::Mat& pointClouds, cv::Mat& topDownView, cv:
 
             if ((0 <= pos_Z) && (pos_Z < VIEW_DEPTH))
             {
-                int pos_X = point.x + VIEW_WIDTH/2;
+                int pos_X = point.x + VIEW_WIDTH/2;//计算得到在俯视角度的x坐标
                 if ((0 <= pos_X) && (pos_X < VIEW_WIDTH))
                 {
                     topDownView.at<cv::Vec3b>(pos_X,pos_Z) = image.at<cv::Vec3b>(y,x);
@@ -493,7 +500,7 @@ void StereoMatch::getTopDownView(cv::Mat& pointClouds, cv::Mat& topDownView, cv:
     }
 }
     
-/*----------------------------
+/**----------------------------
  * 功能 : 获取环境俯视图
  *----------------------------
  * 函数 : StereoMatch::savePointClouds
@@ -512,7 +519,7 @@ void StereoMatch::getSideView(cv::Mat& pointClouds, cv::Mat& sideView, cv::Mat& 
     if (sideView.empty() || sideView.size() != mapSize || sideView.type() != CV_8UC3)
         sideView = cv::Mat(mapSize, CV_8UC3);
     
-    sideView = cv::Scalar::all(50);
+    sideView = cv::Scalar::all(50);//获取侧视视角
 
     if (pointClouds.empty())
         return;
@@ -524,13 +531,14 @@ void StereoMatch::getSideView(cv::Mat& pointClouds, cv::Mat& sideView, cv::Mat& 
     {
         for(int x = 0; x < pointClouds.cols; x++)
         {
+			//获取侧视图时对三维点坐标进行相应的变换
             cv::Point3f point = pointClouds.at<cv::Point3f>(y, x);
-            int pos_Y = -point.y + VIEW_HEIGTH/2;
-            int pos_Z = point.z;
+            int pos_Y = -point.y + VIEW_HEIGTH/2;//该点在侧视角度的y坐标
+            int pos_Z = point.z;//该点在侧视角度的z坐标
 
             if ((0 <= pos_Z) && (pos_Z < VIEW_DEPTH))
             {
-                if ((0 <= pos_Y) && (pos_Y < VIEW_HEIGTH))
+                if ((0 <= pos_Y) && (pos_Y < VIEW_HEIGTH))//保证变换在规定范围内
                 {
                     sideView.at<cv::Vec3b>(pos_Y,pos_Z) = image.at<cv::Vec3b>(y,x);
                 }
@@ -540,7 +548,7 @@ void StereoMatch::getSideView(cv::Mat& pointClouds, cv::Mat& sideView, cv::Mat& 
 }
 
 
-/*----------------------------
+/**----------------------------
  * 功能 : 保存三维点云到本地 txt 文件
  *----------------------------
  * 函数 : StereoMatch::savePointClouds
@@ -561,10 +569,10 @@ void StereoMatch::savePointClouds(cv::Mat& pointClouds, const char* filename)
 			for(int x = 0; x < pointClouds.cols; x++)
 			{
 				cv::Vec3f point = pointClouds.at<cv::Vec3f>(y, x);
-				if(fabs(point[2] - max_z) < FLT_EPSILON || fabs(point[2]) > max_z)
-					fprintf(fp, "%d %d %d\n", 0, 0, 0);
+				if(fabs(point[2] - max_z) < FLT_EPSILON || fabs(point[2]) > max_z)//得到的点的z坐标大或等于10000时
+					fprintf(fp, "%d %d %d\n", 0, 0, 0);//写入（0 0 0）
 				else
-					fprintf(fp, "%f %f %f\n", point[0], point[1], point[2]);
+					fprintf(fp, "%f %f %f\n", point[0], point[1], point[2]);//否则将该点的三个坐标值写入
 			}
 		}
 		fclose(fp);
