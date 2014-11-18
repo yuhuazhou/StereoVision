@@ -167,9 +167,6 @@ BEGIN_MESSAGE_MAP(CStereoVisionDlg, CDialog)
 	//}}AFX_MSG_MAP
 	ON_BN_CLICKED(IDC_BN1RunCam, &CStereoVisionDlg::OnBnClkRunCam)
 	ON_BN_CLICKED(IDC_BN2StopCam, &CStereoVisionDlg::OnBnClkStopCam)
-	ON_BN_CLICKED(IDC_RAD_BM, &CStereoVisionDlg::OnBnClkRad_BM)
-	ON_BN_CLICKED(IDC_RAD_SGBM, &CStereoVisionDlg::OnBnClkRad_SGBM)
-	ON_BN_CLICKED(IDC_RAD_VAR, &CStereoVisionDlg::OnBnClkRad_VAR)
 	ON_BN_CLICKED(IDC_BN_CompDisp, &CStereoVisionDlg::OnBnClk_DoCompDisp)
 	ON_BN_CLICKED(IDC_BN_StopDispComp, &CStereoVisionDlg::OnBnClk_StopDispComp)
 	ON_BN_CLICKED(IDC_BN2StereoCalib, &CStereoVisionDlg::OnBnClk_DoCameraCalib)
@@ -193,14 +190,7 @@ END_MESSAGE_MAP()
 
 // CStereoVisionDlg 消息处理程序
 
-/**----------------------------
- * 功能 : 初始化对话框
- *----------------------------
- * 函数 : CStereoVisionDlg::OnInitDialog
- * 访问 : virtual protected 
- * 返回 : BOOL
- *
- */
+
 BOOL CStereoVisionDlg::OnInitDialog()
 {
 	CDialog::OnInitDialog();
@@ -231,14 +221,14 @@ BOOL CStereoVisionDlg::OnInitDialog()
 	//////////////////////////////////////////////////////////////////////////
 	// TODO: Add extra initialization here
 	
-	// 获取程序工作路径
+	
 	m_workDir = F_InitWorkDir();
     m_stereoCalibrator.setWorkDir(CStringA(m_workDir).GetBuffer(0));
 
-	// 默认图像处理方法为显示原始图像
+	
 	m_ProcMethod = SHOW_ORIGINAL_FRAME;
 
-	// 获取摄像头数目
+	
 	
 	m_nCamCount = CCameraDS::CameraCount();
 	if( m_nCamCount < 1 )
@@ -247,7 +237,7 @@ BOOL CStereoVisionDlg::OnInitDialog()
 		//return -1;
 	}
 
-	// 在组合框CamList中添加摄像头名称的字符串
+	
 	char camera_name[1024];
 	char istr[1024];
 	CString camstr;
@@ -278,24 +268,22 @@ BOOL CStereoVisionDlg::OnInitDialog()
 	m_CBNMethodList.SetCurSel(0);
 
 	// 使一系列按钮失效
-	GetDlgItem( IDC_BN1RunCam )->EnableWindow( FALSE );			// 启动摄像头失效
-	GetDlgItem( IDC_BN2StopCam )->EnableWindow( FALSE );		// 停止摄像头失效
-	GetDlgItem(IDC_BN_StopDispComp)->EnableWindow(FALSE);		// 停止视差计算失效
-	GetDlgItem(IDC_EDIT_disp12MaxDiff)->EnableWindow(FALSE);	// 左右视差图检验失效
+	GetDlgItem( IDC_BN1RunCam )->EnableWindow( FALSE );			
+	GetDlgItem( IDC_BN2StopCam )->EnableWindow( FALSE );		
+	GetDlgItem(IDC_BN_StopDispComp)->EnableWindow(FALSE);		
+	GetDlgItem(IDC_EDIT_disp12MaxDiff)->EnableWindow(FALSE);	
 	
 	// 初始化双目匹配区域控件设置
-	CheckRadioButton(IDC_RAD_BOUGUET, IDC_RAD_HARTLEY, IDC_RAD_BOUGUET);				// 默认使用BOUGUET方法双目校正
-	CheckRadioButton(IDC_RAD_BM, IDC_RAD_SGBM, IDC_RAD_BM);								// 默认使用 BM 算法计算视差
-	CheckRadioButton(IDC_RAD_DispFromCam, IDC_RAD_DispFromImg, IDC_RAD_DispFromCam);	// 默认从摄像机获取图像
-    CheckRadioButton(IDC_RAD_ToHSV, IDC_RAD_ToXYZ, IDC_RAD_ToHSV);						// 默认图像格式转换为 HSV 格式
-    CheckRadioButton(IDC_RAD_ColorDisp, IDC_RAD_SideView, IDC_RAD_ColorDisp);			// 默认显示彩色视差图
-	m_pCheck = (CButton*)GetDlgItem(IDC_CHK_StereoRectify);								// 默认执行双目校正
+	CheckRadioButton(IDC_RAD_BOUGUET, IDC_RAD_HARTLEY, IDC_RAD_BOUGUET);				
+	CheckRadioButton(IDC_RAD_DispFromCam, IDC_RAD_DispFromImg, IDC_RAD_DispFromCam);	
+    CheckRadioButton(IDC_RAD_ToHSV, IDC_RAD_ToXYZ, IDC_RAD_ToHSV);						
+    CheckRadioButton(IDC_RAD_ColorDisp, IDC_RAD_SideView, IDC_RAD_ColorDisp);			
+	m_pCheck = (CButton*)GetDlgItem(IDC_CHK_StereoRectify);							
 	m_pCheck->SetCheck(1);
-	m_pCheck = (CButton*)GetDlgItem(IDC_CHK_ProjTo3D);			// 默认执行双目测距
+	m_pCheck = (CButton*)GetDlgItem(IDC_CHK_ProjTo3D);			
 	m_pCheck->SetCheck(1);
 	m_pCheck = NULL;
 
-	//初始化各参数的值并且确定各参数的范围
     m_nViewWidth = 200;
     m_nViewHeight = 200;
     m_nViewDepth = 200;
@@ -331,20 +319,7 @@ BOOL CStereoVisionDlg::OnInitDialog()
 	return TRUE;  // return TRUE  unless you set the focus to a control
 }
 
-// 如果向对话框添加最小化按钮，则需要下面的代码
-//  来绘制该图标。对于使用文档/视图模型的 MFC 应用程序，
-//  这将由框架自动完成。
 
-/**----------------------------
- * 功能 : OnSysCommand
- *----------------------------
- * 函数 : CStereoVisionDlg::OnSysCommand
- * 访问 : protected 
- * 返回 : void
- *
- * 参数 : UINT nID
- * 参数 : LPARAM lParam
- */
 void CStereoVisionDlg::OnSysCommand(UINT nID, LPARAM lParam)
 {
 	if ((nID & 0xFFF0) == IDM_ABOUTBOX)
@@ -363,23 +338,15 @@ void CStereoVisionDlg::OnSysCommand(UINT nID, LPARAM lParam)
 //  this is automatically done for you by the framework.
 
 
-/**----------------------------
- * 功能 : OnPaint
- *----------------------------
- * 函数 : CStereoVisionDlg::OnPaint
- * 访问 : protected 
- * 返回 : void
- *
- */
+
 void CStereoVisionDlg::OnPaint()
 {
 	if (IsIconic())
 	{
-		CPaintDC dc(this); // 用于绘制的设备上下文
+		CPaintDC dc(this);
 
 		SendMessage(WM_ICONERASEBKGND, reinterpret_cast<WPARAM>(dc.GetSafeHdc()), 0);
 
-		// 使图标在工作区矩形中居中
 		int cxIcon = GetSystemMetrics(SM_CXICON);
 		int cyIcon = GetSystemMetrics(SM_CYICON);
 		CRect rect;
@@ -387,7 +354,6 @@ void CStereoVisionDlg::OnPaint()
 		int x = (rect.Width() - cxIcon + 1) / 2;
 		int y = (rect.Height() - cyIcon + 1) / 2;
 
-		// 绘制图标
 		dc.DrawIcon(x, y, m_hIcon);
 	}
 	else
@@ -414,14 +380,7 @@ HCURSOR CStereoVisionDlg::OnQueryDragIcon()
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 
-/**----------------------------
- * 功能 : 选择左摄像头下拉菜单响应
- *----------------------------
- * 函数 : CStereoVisionDlg::OnCbnSelchgCbn1CamlistL
- * 访问 : private 
- * 返回 : void
- *
- */
+
 void CStereoVisionDlg::OnCbnSelchgCbn1CamlistL()
 {
 	// TODO: Add your control notification handler code here
@@ -435,14 +394,7 @@ void CStereoVisionDlg::OnCbnSelchgCbn1CamlistL()
 	return;
 }
 
-/*----------------------------
- * 功能 : 选择右摄像头下拉菜单响应
- *----------------------------
- * 函数 : CStereoVisionDlg::OnCbnSelchgCbn1CamlistR
- * 访问 : private 
- * 返回 : void
- *
- */
+
 void CStereoVisionDlg::OnCbnSelchgCbn1CamlistR()
 {
 	// TODO: Add your control notification handler code here
@@ -457,14 +409,7 @@ void CStereoVisionDlg::OnCbnSelchgCbn1CamlistR()
 }
 
 
-/**----------------------------
- * 功能 : 选择摄像头分辨率
- *----------------------------
- * 函数 : CStereoVisionDlg::OnCbnSelchangeCbnResolution
- * 访问 : private 
- * 返回 : void
- *
- */
+
 void CStereoVisionDlg::OnCbnSelchangeCbnResolution()
 {
 	// TODO: 在此添加控件通知处理程序代码
@@ -492,14 +437,7 @@ void CStereoVisionDlg::OnCbnSelchangeCbnResolution()
 }
 
 
-/**----------------------------
- * 功能 : 启动摄像头
- *----------------------------
- * 函数 : CStereoVisionDlg::OnBnClkRunCam
- * 访问 : private 
- * 返回 : void
- *
- */
+
 void CStereoVisionDlg::OnBnClkRunCam()
 {
 	// TODO: Add your control notification handler code here
@@ -510,7 +448,6 @@ void CStereoVisionDlg::OnBnClkRunCam()
 	}
 	if (m_nCamCount > 0)
 	{
-		//打开第一个摄像头
 		//if( ! lfCam.OpenCamera(m_riCamID, false, m_nImageWidth, m_nImageHeight) ) //不弹出属性选择窗口，用代码制定图像宽和高
 		if ( !lfCam.open(m_lfCamID) )
 		{
@@ -527,7 +464,6 @@ void CStereoVisionDlg::OnBnClkRunCam()
 			AfxMessageBox(_T("左右摄像头的设备序号不能相同！"));
 			return;
 		}
-		//打开第二个摄像头
 		//if( ! riCam.OpenCamera(m_lfCamID, false, m_nImageWidth, m_nImageHeight) ) 
 		if ( !riCam.open(m_riCamID) )
 		{
@@ -548,23 +484,13 @@ void CStereoVisionDlg::OnBnClkRunCam()
     GetDlgItem( IDC_CBN1CamList_R )->EnableWindow( FALSE );
 	GetDlgItem( IDC_CBN_Resolution )->EnableWindow( FALSE );
 
-	// 启动摄像头后显示实时画面
 	DoShowOrigFrame();
 	
 	return;
 }
 
 
-/**----------------------------
- * 功能 : 定时器响应
- *		 主要用于 没有双目定标或双目匹配操作时 的其它显示和处理操作
- *----------------------------
- * 函数 : CStereoVisionDlg::OnTimer
- * 访问 : private 
- * 返回 : void
- *
- * 参数 : UINT_PTR nIDEvent
- */
+
 void CStereoVisionDlg::OnTimer(UINT_PTR nIDEvent)
 {
 	// TODO: 在此添加消息处理程序代码和/或调用默认值
@@ -596,14 +522,7 @@ void CStereoVisionDlg::OnTimer(UINT_PTR nIDEvent)
 }
 
 
-/**----------------------------
- * 功能 : 关闭摄像头
- *----------------------------
- * 函数 : CStereoVisionDlg::OnBnClkStopCam
- * 访问 : private 
- * 返回 : void
- *
- */
+
 void CStereoVisionDlg::OnBnClkStopCam()
 {
 	// TODO: Add your control notification handler code here
@@ -612,7 +531,6 @@ void CStereoVisionDlg::OnBnClkStopCam()
 		GetDlgItem( IDC_BN2StopCam )->EnableWindow( FALSE );
 		KillTimer(1);
 
-		// 对图像数据清零
 		m_lfImage = Scalar(0);
 		F_ShowImage( m_lfImage, m_lfImage, IDC_PicLfCam );
 		lfCam.release();
@@ -635,15 +553,7 @@ void CStereoVisionDlg::OnBnClkStopCam()
 }
 
 
-/**----------------------------
- * 功能 : 帧处理方法下拉菜单选择响应，
- *		 修改帧处理标志值
- *----------------------------
- * 函数 : CStereoVisionDlg::OnCbnSelchgCbn2Methodlist
- * 访问 : private 
- * 返回 : void
- *
- */
+
 void CStereoVisionDlg::OnCbnSelchgCbn2Methodlist()
 {
 	// TODO: Add your control notification handler code here
@@ -651,19 +561,7 @@ void CStereoVisionDlg::OnCbnSelchgCbn2Methodlist()
 }
 
 
-/**----------------------------
- * 功能 : 弹出打开文件对话框，选择单个或多个文件
- *----------------------------
- * 函数 : CStereoVisionDlg::DoSelectFiles
- * 访问 : private 
- * 返回 : selectedFiles	选择的文件的路径序列
- *
- * 参数 : lpszDefExt			[in]	文件默认格式
- * 参数 : dwFlags			[in]	对话框选项
- * 参数 : lpszFilter			[in]	文件格式过滤条件
- * 参数 : lpstrTitle			[in]	对话框标题
- * 参数 : lpstrInitialDir	[in]	对话框的初始路径
- */
+
 vector<CStringA> CStereoVisionDlg::DoSelectFiles(
 	LPCTSTR	lpszDefExt,
 	DWORD	dwFlags,
@@ -700,14 +598,7 @@ vector<CStringA> CStereoVisionDlg::DoSelectFiles(
 }
 
 
-/**----------------------------
- * 功能 : 设置摄像头定标的默认参数
- *----------------------------
- * 函数 : CStereoVisionDlg::OnBnClkDefaultCamCalibParam
- * 访问 : private 
- * 返回 : void
- *
- */
+
 void CStereoVisionDlg::OnBnClkDefaultCamCalibParam()
 {
 	// TODO: Add your control notification handler code here
@@ -747,18 +638,9 @@ void CStereoVisionDlg::OnBnClkDefaultCamCalibParam()
 }
 
 
-/**----------------------------
- * 功能 : 确认摄像机定标的相关选项
- *----------------------------
- * 函数 : CStereoVisionDlg::DoParseOptionsOfCameraCalib
- * 访问 : private 
- * 返回 : void
- *
- * 参数 : opt	[i/o]	摄像机定标选项
- */
+
 bool CStereoVisionDlg::DoParseOptionsOfCameraCalib(OptionCameraCalib& opt)
 {
-	// 摄像头定标变量初始化
 	opt.squareSize = 30.0f;
 	opt.flagCameraCalib = CV_CALIB_FIX_K3;
 	opt.flagStereoCalib = 0;
@@ -772,15 +654,14 @@ bool CStereoVisionDlg::DoParseOptionsOfCameraCalib(OptionCameraCalib& opt)
 	int nFlagDefs2[5] = { CV_CALIB_FIX_PRINCIPAL_POINT, CV_CALIB_USE_INTRINSIC_GUESS,
 		CV_CALIB_FIX_ASPECT_RATIO, CV_CALIB_SAME_FOCAL_LENGTH, CV_CALIB_FIX_INTRINSIC };
 
-	// 读入MFC界面的棋盘参数设定
 	bool res = UpdateData(TRUE);
     if (!res)
         return false;
 
-	opt.cornerSize.width = m_nCornerSize_X; 	// 棋盘角点数 (nx, ny)
+	opt.cornerSize.width = m_nCornerSize_X; 	
 	opt.cornerSize.height = m_nCornerSize_Y;
-	opt.numberBoards = m_nBoards;				// 检测棋盘次数
-	opt.squareSize = m_nSquareSize; 			// 棋盘方块大小
+	opt.numberBoards = m_nBoards;				
+	opt.squareSize = m_nSquareSize; 			
 
 	// 确认棋盘角点坐标数据的获取方式
 	m_pCheck = (CButton*)GetDlgItem(IDC_CHK_ReadCornerData);
@@ -836,30 +717,25 @@ bool CStereoVisionDlg::DoParseOptionsOfCameraCalib(OptionCameraCalib& opt)
 }
 
 
-/**----------------------------
- * 功能 : 双目定标 按钮响应
- *----------------------------
- * 函数 : CStereoVisionDlg::OnBnClk_DoCameraCalib
- * 访问 : private 
- * 返回 : void
- *
- */
+
 void CStereoVisionDlg::OnBnClk_DoCameraCalib()
 {
+	// TODO: Add your control notification handler code here
+
     //确认摄像机定标的相关选项
     OptionCameraCalib optCalib;
-    if (!DoParseOptionsOfCameraCalib(optCalib)) //如果没有设定标定参数，那么就返回空值
+    if (!DoParseOptionsOfCameraCalib(optCalib))
         return;
 
 	KillTimer(1);
-	GetDlgItem(IDC_BN2StereoCalib)->EnableWindow(FALSE);//将设定各个按钮的状态设定为false状态
-    GetDlgItem(IDC_CBN2MethodList)->EnableWindow(FALSE);//
+	GetDlgItem(IDC_BN2StereoCalib)->EnableWindow(FALSE);
+    GetDlgItem(IDC_CBN2MethodList)->EnableWindow(FALSE);
     GetDlgItem(IDC_BN_CompDisp)->EnableWindow(FALSE);
 
 	// 棋盘检测参数初始化
 	int nFoundBoard = 0, nFrame = 0;
 	vector<CStringA> img0Files, img1Files;
-	const char* img0_file = NULL, *img1_file = NULL;//初始读入文件名
+	const char* img0_file = NULL, *img1_file = NULL;
 	cv::Mat frame0, frame1, img0, img1;
 	cv::Size imageSize;
 
@@ -871,13 +747,13 @@ void CStereoVisionDlg::OnBnClk_DoCameraCalib()
     {
 		////////////////////////////////////////////////////////////////////////
 		// 读入或检测棋盘角点
-		// *** 从本地文件读入角点坐标数据
+		
         CStringA filePath(m_workDir);
         filePath.AppendFormat("CornerData.yml");
 		const char* cornerFile = filePath.GetBuffer(0);
 		if (optCalib.loadConerDatas)		
 		{
-			if ( m_stereoCalibrator.loadCornerData(cornerFile, cornerDatas) )//载入棋盘角点数据信息   cornerFile---角点本地文件路径/文件名   cornerDatas---导入的棋盘角点数据
+			if ( m_stereoCalibrator.loadCornerData(cornerFile, cornerDatas) )
 			{
 				AfxMessageBox(_T("已读入角点坐标数据"));
 			}
@@ -887,7 +763,7 @@ void CStereoVisionDlg::OnBnClk_DoCameraCalib()
 				throw errMsg;
 			}
 		} 
-		// *** 从摄像头或本地图片检测棋盘角点
+		
 		else		
 		{
 			// 若选择从本地图片读入定标图像，首先弹出对话框选择图片文件
@@ -910,7 +786,7 @@ void CStereoVisionDlg::OnBnClk_DoCameraCalib()
                         _T("Imgs\\Right"));
                 }
 
-				if( img0Files.empty() )	// 判断是否获得图片
+				if( img0Files.empty() )	
 				{
 					LPCTSTR errMsg = _T("没有选择到有效的图像文件，请重新选择!");
 					throw errMsg;
@@ -920,37 +796,37 @@ void CStereoVisionDlg::OnBnClk_DoCameraCalib()
 				img0 = cv::imread(img0_file);
 				imageSize = img0.size();
 
-				if (false == img1Files.empty())//如果获得了图片
+				if (false == img1Files.empty())
 				{
-					optCalib.numberBoards = MIN(optCalib.numberBoards, MIN(img0Files.size(), img1Files.size()));//更新检测次数，即为每个视图获得的图片数
+					optCalib.numberBoards = MIN(optCalib.numberBoards, MIN(img0Files.size(), img1Files.size()));
 				}
-				else//如果没获得图片，则不标定，并且更新检测次数为各视图获得的图片数
+				else
 				{
 					optCalib.doStereoCalib = false;
 					optCalib.numberBoards = MIN(optCalib.numberBoards, img0Files.size());
 				}
 			} 
-			else//如果是从摄像头进行标定
+			else
 			{
-				lfCam >> img0;//直接将摄像头获得的数据流入图片控件中
+				lfCam >> img0;
 				imageSize = img0.size();
 			}
 
 			////////////////////////////////////////////////////////////////////////
-			// 初始化角点数据集
+			
 			m_stereoCalibrator.initCornerData(optCalib.numberBoards, imageSize, optCalib.cornerSize, optCalib.squareSize, cornerDatas);
 			
-			// 启用退出摄像机定标按钮
+			
 			GetDlgItem(IDC_BN_ExitCameraCalib)->EnableWindow(TRUE);
 
-			// 开始检测角点
+			
 			MSG msg;
 			while(nFoundBoard < optCalib.numberBoards)
 			{
 				// MFC 窗口消息处理
-				if(::PeekMessage(&msg, this->m_hWnd, 0, 0, PM_REMOVE)) //从窗口检查消息
+				if(::PeekMessage(&msg, this->m_hWnd, 0, 0, PM_REMOVE)) 
 				{ 
-					if(msg.message == WM_QUIT) //如果msg获得的是退出指令
+					if(msg.message == WM_QUIT) 
 					{ 
 						LPCTSTR errMsg = _T("手动退出双目标定!");
 						throw errMsg; 
@@ -961,48 +837,47 @@ void CStereoVisionDlg::OnBnClk_DoCameraCalib()
 					//StringCbPrintf( info, sizeof(info), _T("消息序号 = %d\n"), msg.message );
 					//OutputDebugString(info);
 
-					::TranslateMessage(&msg);//翻译消息 
-					::DispatchMessage(&msg);//分发一个消息给窗口标识已经“手动退出双目标定”
+					::TranslateMessage(&msg); 
+					::DispatchMessage(&msg);
 				}
 
-				// 载入图像
-				if(optCalib.readLocalImage)	// 从本地图片导入
+				
+				if(optCalib.readLocalImage)
 				{
 					img0_file = img0Files[ nFoundBoard ];
 					frame0 = cv::imread(img0_file);
-					if (optCalib.doStereoCalib)//如果执行双目标定
+					if (optCalib.doStereoCalib)
 					{
 						img1_file = img1Files[ nFoundBoard ];
 						frame1 = cv::imread(img1_file);
 					}
 				} 
-				else	// 从摄像头
+				else	
 				{
 					lfCam >> frame0;
-					if (optCalib.doStereoCalib)//如果执行标定 
-						riCam >> frame1;//将第二个摄像头的数据流入fram1
+					if (optCalib.doStereoCalib) 
+						riCam >> frame1;
 				}				
 				if ( frame0.empty())	break;
-				if (optCalib.doStereoCalib)//如果执行标定
+				if (optCalib.doStereoCalib)
 				{
-					if ( frame1.empty())//判断是否为空
-						break;
+					if ( frame1.empty())	break;
 				}
 
-				// 复制图像
+				
 				img0 = frame0.clone();
 				if (optCalib.doStereoCalib) img1 = frame1.clone();
 
-				// 检测角点
+				
 				if ( m_stereoCalibrator.detectCorners(img0, img1, cornerDatas, nFoundBoard) )
 				{
-					if (nFrame++ > optCalib.numberFrameSkip)//检测到的帧数大于角点检测间的间隔数
+					if (nFrame++ > optCalib.numberFrameSkip)
 					{
-						//保存视图
-						if (optCalib.readLocalImage == false)//不是从本地读图片标定的
+						
+						if (optCalib.readLocalImage == false)
 						{
 							CStringA imgName( m_workDir );
-							imgName.AppendFormat("Imgs\\left%03d.jpg",nFoundBoard);//格式化文件名
+							imgName.AppendFormat("Imgs\\left%03d.jpg",nFoundBoard);
 							string imgname = imgName.GetBuffer(0);
 							imwrite(imgname, frame0);
 
@@ -1013,22 +888,20 @@ void CStereoVisionDlg::OnBnClk_DoCameraCalib()
 								imgname = imgName.GetBuffer(0);
 								imwrite(imgname, frame1);
 							}
-                            imgName.ReleaseBuffer();//释放控件
+                            imgName.ReleaseBuffer();
 						}
 
-						nFoundBoard++;//每检测一次，nFoundBoard加1 
-						nFrame = 0;//nFrame清零，方便下次使用
+						nFoundBoard++; 
+						nFrame = 0;
 					}
 
 					if (nFoundBoard > 0 && nFrame < 5)
 					{
-						//使图像反色，表明同时找到完整的棋盘角点
-						bitwise_not(img0, img0);//为每一个像素取反
+						bitwise_not(img0, img0);
 						if (optCalib.doStereoCalib) bitwise_not(img1, img1);
 					}
 				} // --End "if ( m_stereoCalibrator.detectCorners )"
 
-				// 显示检测到的角点
 				F_ShowImage( img0, m_lfImage, IDC_PicLfCam );
 				if (optCalib.doStereoCalib) F_ShowImage( img1, m_riImage, IDC_PicRiCam ); 
 			} // --End "while(nFoundBoard < optCalib.numberBoards) "
@@ -1041,24 +914,24 @@ void CStereoVisionDlg::OnBnClk_DoCameraCalib()
 			else if (nFoundBoard != optCalib.numberBoards)
 			{
 				optCalib.numberBoards = nFoundBoard;
-				m_stereoCalibrator.resizeCornerData(optCalib.numberBoards, cornerDatas);//根据成功检测的棋盘数目修改棋盘角点数据
+				m_stereoCalibrator.resizeCornerData(optCalib.numberBoards, cornerDatas);
 			}
 
-			// 保存角点坐标数据
+			
 			m_stereoCalibrator.saveCornerData(cornerFile, cornerDatas);
 
 			AfxMessageBox(_T("棋盘角点检测结束"));
 		} // --End "if (optCalib.loadConerDatas)"
-		// 已获取角点坐标数据
+	
 
-		// 禁用退出摄像机定标按钮
+	
 		GetDlgItem(IDC_BN_ExitCameraCalib)->EnableWindow(FALSE);
 
 		////////////////////////////////////////////////////////////////////////
-		// 是否读入已标定好的摄像头内参？
+		
 		if (optCalib.calibOrder == CALIB_LOAD_CAMERA_PARAMS)
 		{		
-            filePath = m_workDir;//读取得到的摄像头内参文件名
+            filePath = m_workDir;
             filePath.AppendFormat("cameraParams_left.yml");
 			if (0 == m_stereoCalibrator.loadCameraParams(filePath.GetBuffer(0), stereoParams.cameraParams1))
 			{
@@ -1077,22 +950,22 @@ void CStereoVisionDlg::OnBnClk_DoCameraCalib()
 				}
 			}
 
-			// 显示已读入已标定好的摄像头内参
+			
 			AfxMessageBox(_T("已读入标定好的摄像头内参"));
 		}	
 
-		// 进行摄像头标定
-		if (optCalib.doStereoCalib)	// 双目标定和校正
+		
+		if (optCalib.doStereoCalib)	
 		{
-			stereoParams.cameraParams1.flags = optCalib.flagCameraCalib;//读取单目标志位
+			stereoParams.cameraParams1.flags = optCalib.flagCameraCalib;
 			stereoParams.cameraParams2.flags = optCalib.flagCameraCalib;
-            stereoParams.flags = optCalib.flagStereoCalib;//读取双目标志位
-            stereoParams.alpha = optCalib.alpha;//读取输入的双目缩放系数
+            stereoParams.flags = optCalib.flagStereoCalib;
+            stereoParams.alpha = optCalib.alpha;
 
-			bool needCalibSingleCamera = (CALIB_SINGLE_CAMERA_FIRST == optCalib.calibOrder);//设定摄像机标定次序
+			bool needCalibSingleCamera = (CALIB_SINGLE_CAMERA_FIRST == optCalib.calibOrder);
 			m_stereoCalibrator.calibrateStereoCamera(cornerDatas, stereoParams, needCalibSingleCamera);
 
-			// 计算标定误差
+			
 			double avgErr = 0;
 			m_stereoCalibrator.getStereoCalibrateError(cornerDatas, stereoParams, avgErr);
 			char info[50];
@@ -1101,33 +974,33 @@ void CStereoVisionDlg::OnBnClk_DoCameraCalib()
 			ss = info;
 			AfxMessageBox(ss);
 
-			// 执行双目校正
+			
 			m_stereoCalibrator.rectifyStereoCamera(cornerDatas, stereoParams, remapMatrixs, optCalib.rectifyMethod);
 
 			AfxMessageBox(_T("已完成双目校正"));
 
-            // 保存摄像头定标参数	
-            filePath = m_workDir;//获取当前工作目录
+           
+            filePath = m_workDir;
             filePath.AppendFormat("calib_paras.xml");
 			m_stereoCalibrator.saveCalibrationDatas(filePath.GetBuffer(0), optCalib.rectifyMethod, cornerDatas, stereoParams, remapMatrixs);
 
             AfxMessageBox(_T("已保存定标参数"));
 
 		} 
-		else // 单目标定
+		else 
 		{
 			StereoCalib::CameraParams cameraParams;
 			cameraParams.flags = optCalib.flagCameraCalib;
 
-			// 执行单目定标
+			
             m_stereoCalibrator.calibrateSingleCamera(cornerDatas, cameraParams);
 
-            // 保存定标参数
+           
             filePath = m_workDir;
             filePath.AppendFormat("cameraParams.yml");
 			m_stereoCalibrator.saveCameraParams(cameraParams, filePath.GetBuffer(0));
 
-			// 计算标定误差
+			
 			double avgErr = 0;
 			m_stereoCalibrator.getCameraCalibrateError(cornerDatas.objectPoints, cornerDatas.imagePoints1, cameraParams, avgErr);
 			char info[50];
@@ -1136,7 +1009,7 @@ void CStereoVisionDlg::OnBnClk_DoCameraCalib()
 			ss = info;
 			AfxMessageBox(ss);
 
-			// 执行单目校正
+			
 			m_stereoCalibrator.rectifySingleCamera(cameraParams, remapMatrixs);
 
 		}
@@ -1144,7 +1017,6 @@ void CStereoVisionDlg::OnBnClk_DoCameraCalib()
 		//////////////////////////////////////////////////////////////////////////
 		// 显示标定效果
 		{
-			// 启用退出摄像机定标按钮
 			GetDlgItem(IDC_BN_ExitCameraCalib)->EnableWindow(TRUE);
 
 			MSG msg;
@@ -1161,7 +1033,6 @@ void CStereoVisionDlg::OnBnClk_DoCameraCalib()
 					::DispatchMessage(&msg);
 				}
 
-				// 载入图像
 				lfCam >> frame0;
 				if (optCalib.doStereoCalib) 
 					riCam >> frame1;			
@@ -1171,22 +1042,18 @@ void CStereoVisionDlg::OnBnClk_DoCameraCalib()
 					if ( frame1.empty())	break;
 				}
 
-				// 复制图像
 				img0 = frame0.clone();
 				if (optCalib.doStereoCalib) 
 					img1 = frame1.clone();
 
-				// 校正图像
 				UpdateData(FALSE);
 				m_pCheck = (CButton*)GetDlgItem(IDC_CHK_ShowCalibResult);
 				bool showCalibrated = m_pCheck->GetCheck() > 0;
 				if ( showCalibrated )
 					m_stereoCalibrator.remapImage(img0, img1, img0, img1, remapMatrixs);
-                
-				// 显示校正效果
+
 				if (optCalib.doStereoCalib) 
                 {
-                    // 画出等距的若干条横线，以比对 行对准 情况
                     for( int j = 0; j < img0.rows; j += 32 )		
                     {
                         line( img0, cvPoint(0,j),	cvPoint(img0.cols,j), CV_RGB(0,255,0)); 
@@ -1224,18 +1091,18 @@ void CStereoVisionDlg::OnBnClk_DoCameraCalib()
 		AfxMessageBox(_T("发生未知错误！"));
 	}
 
-	// 禁用退出摄像机定标按钮
+	
 	GetDlgItem(IDC_BN_ExitCameraCalib)->EnableWindow(FALSE);
 
 	//////////////////////////////////////////////////////////////////////////	
 	if(lfCam.isOpened() || riCam.isOpened())
 	{
-		// 定标结束，恢复双目定标按钮
+		
 		GetDlgItem(IDC_BN2StereoCalib)->EnableWindow(TRUE);
         GetDlgItem(IDC_CBN2MethodList)->EnableWindow(TRUE);
         GetDlgItem(IDC_BN_CompDisp)->EnableWindow(TRUE);
 
-		// 恢复正常显示
+		
 		DoShowOrigFrame();		
 	}
 
@@ -1243,14 +1110,7 @@ void CStereoVisionDlg::OnBnClk_DoCameraCalib()
 }
 
 
-/**----------------------------------
- * 功能 :	停止角点检测 按钮响应
- *----------------------------------
- * 函数 :	CStereoVisionDlg::OnBnClk_StopDetectCorners
- * 访问 :	private 
- * 返回 :	void
- *
- */
+
 void CStereoVisionDlg::OnBnClk_ExitCameraCalib()
 {
 	// TODO: 在此添加控件通知处理程序代码
@@ -1261,15 +1121,6 @@ void CStereoVisionDlg::OnBnClk_ExitCameraCalib()
 }
 
 
-/**----------------------------
- * 功能 : 确认立体匹配的相关选项
- *----------------------------
- * 函数 : CStereoVisionDlg::DoParseOptionsOfStereoMatch
- * 访问 : private 
- * 返回 : void
- *
- * 参数 : opt	[i/o]	立体匹配选项
- */
 bool CStereoVisionDlg::DoParseOptionsOfStereoMatch(OptionStereoMatch& opt)
 {
     bool res = UpdateData(TRUE);
@@ -1282,12 +1133,10 @@ bool CStereoVisionDlg::DoParseOptionsOfStereoMatch(OptionStereoMatch& opt)
         return false;
     }
 
-	// 确认计算视差的算法
-	m_nID_RAD = GetCheckedRadioButton(IDC_RAD_BM, IDC_RAD_VAR);
-	opt.stereoMethod = m_nID_RAD == IDC_RAD_BM ? STEREO_BM :
-		m_nID_RAD == IDC_RAD_SGBM ? STEREO_SGBM : 
-		m_nID_RAD == IDC_RAD_VAR ? STEREO_VAR : STEREO_BM;
-	// 确认左右视图的来源（摄像头 or 本地图片）
+	
+	opt.stereoMethod = STEREO_BM;
+	
+	
 	m_nID_RAD = GetCheckedRadioButton(IDC_RAD_DispFromCam, IDC_RAD_DispFromImg);
 	opt.readLocalImage = m_nID_RAD == IDC_RAD_DispFromImg;
 	if ( !opt.readLocalImage && m_nCamCount < 2)
@@ -1295,36 +1144,24 @@ bool CStereoVisionDlg::DoParseOptionsOfStereoMatch(OptionStereoMatch& opt)
 		AfxMessageBox(_T("摄像头数目小于2个，无法计算视差"));
 		return false;
 	}
-	// 确认是否执行双目校正
+	
 	m_pCheck = (CButton*)GetDlgItem(IDC_CHK_StereoRectify);
 	opt.useStereoRectify = m_pCheck->GetCheck() > 0;
-	// 确认是否保存匹配结果
 	m_pCheck = (CButton*)GetDlgItem(IDC_CHK_SaveAsVideo);
 	opt.saveResults = m_pCheck->GetCheck() > 0;
-	// 确认是否延时显示匹配效果
 	m_pCheck = (CButton*)GetDlgItem(IDC_CHK_DelayProc);
 	opt.delayEachFrame = m_pCheck->GetCheck() > 0;
 	if (opt.readLocalImage)
 	{
 		opt.delayEachFrame = true;
 		m_pCheck->SetCheck(1);
-	}
-	// 确认是否生成三维点云
+	}	
 	m_pCheck = (CButton*)GetDlgItem(IDC_CHK_ProjTo3D);
 	opt.generatePointCloud = m_pCheck->GetCheck() > 0;
-
     return true;
 }
 
 
-/**----------------------------
- * 功能 : 更新 BM 求解器状态参数
- *----------------------------
- * 函数 : CStereoVisionDlg::DoUpdateStateBM
- * 访问 : private 
- * 返回 : void
- *
- */
 void CStereoVisionDlg::DoUpdateStateBM()
 {
 	UpdateData(TRUE);
@@ -1340,18 +1177,8 @@ void CStereoVisionDlg::DoUpdateStateBM()
 }
 
 
-/**----------------------------
- * 功能 : 更新 SGBM 求解器状态参数
- *----------------------------
- * 函数 : CStereoVisionDlg::DoUpdateStateSGBM
- * 访问 : private 
- * 返回 : void
- *
- * 参数 : imgChannels	[in]	图像通道数
- */
 void CStereoVisionDlg::DoUpdateStateSGBM(int imgChannels)
 {
-	//更新各种参数
 	UpdateData(TRUE);
 	m_stereoMatcher.m_SGBM.preFilterCap = m_nPreFiltCap;
 	m_stereoMatcher.m_SGBM.SADWindowSize = m_nSADWinSiz > 0 ? m_nSADWinSiz : 3;
@@ -1366,14 +1193,6 @@ void CStereoVisionDlg::DoUpdateStateSGBM(int imgChannels)
 }
 
 
-/**----------------------------
- * 功能 : 更新 BM 求解器状态参数
- *----------------------------
- * 函数 : CStereoVisionDlg::DoUpdateStateBM
- * 访问 : private 
- * 返回 : void
- *
- */
 void CStereoVisionDlg::DoUpdateStateVAR()
 {
 	UpdateData(TRUE);
@@ -1382,14 +1201,6 @@ void CStereoVisionDlg::DoUpdateStateVAR()
 }
 
 
-/**----------------------------
- * 功能 : 计算视差 按钮响应
- *----------------------------
- * 函数 : CStereoVisionDlg::OnBnClk_DoCompDisp
- * 访问 : private 
- * 返回 : void
- *
- */
 void CStereoVisionDlg::OnBnClk_DoCompDisp()
 {
 	// TODO: Add your control notification handler code here 
@@ -1397,15 +1208,13 @@ void CStereoVisionDlg::OnBnClk_DoCompDisp()
     //////////////////////////////////////////////////////////////////////////
     // 读入界面中的立体匹配选项设置
     OptionStereoMatch optMatch;
-    if (!DoParseOptionsOfStereoMatch( optMatch )) //如果没有选择任何双目匹配算法，则不执行任操作
+    if (!DoParseOptionsOfStereoMatch( optMatch )) 
         return;
 
-	// 暂停显示摄像头画面的操作
+	
 	KillTimer(1);			
 
 	GetDlgItem(IDC_BN_StopDispComp)->EnableWindow(TRUE);
-	GetDlgItem(IDC_RAD_BM)->EnableWindow(FALSE);
-	GetDlgItem(IDC_RAD_SGBM)->EnableWindow(FALSE);
 	GetDlgItem(IDC_BN2StopCam)->EnableWindow(FALSE);
 	GetDlgItem(IDC_BN_CompDisp)->EnableWindow(FALSE);
 	GetDlgItem(IDC_BN2StereoCalib)->EnableWindow(FALSE);
@@ -1413,8 +1222,8 @@ void CStereoVisionDlg::OnBnClk_DoCompDisp()
 
 	//////////////////////////////////////////////////////////////////////////
 	// 参数初始化
-	CStringA xmlPath;			// 定标结果数据文件
-	vector<CStringA> imgFiles1; //左右视图文件路径序列
+	CStringA xmlPath;			
+	vector<CStringA> imgFiles1;
 	vector<CStringA> imgFiles2;	
 	int i = 0, j = 0;
 	const char* img1_filename = NULL;
@@ -1428,9 +1237,8 @@ void CStereoVisionDlg::OnBnClk_DoCompDisp()
 	{
 		//////////////////////////////////////////////////////////////////////////
 		// 选择/预载图像（摄像机 or 本地图片）
-		if (optMatch.readLocalImage)//本地图片读取
+		if (optMatch.readLocalImage)
 		{
-			// 选择左视图
 			imgFiles1 = DoSelectFiles(
 				_T("*.bmp"), 
 				OFN_ENABLESIZING |OFN_EXPLORER | OFN_ALLOWMULTISELECT | OFN_HIDEREADONLY,
@@ -1438,7 +1246,6 @@ void CStereoVisionDlg::OnBnClk_DoCompDisp()
 				_T("选择左视图图像"),
 				m_workDir
 				);
-			// 选择右视图
 			imgFiles2 = DoSelectFiles(
 				_T("*.bmp"), 
 				OFN_ENABLESIZING |OFN_EXPLORER | OFN_ALLOWMULTISELECT | OFN_HIDEREADONLY,
@@ -1455,20 +1262,19 @@ void CStereoVisionDlg::OnBnClk_DoCompDisp()
 
 			img1_filename = imgFiles1[0];
 			img2_filename = imgFiles2[0];
-			img1 = imread(img1_filename);//读取左视图本地图片
-			img2 = imread(img2_filename);//读取右视图本地图片
+			img1 = imread(img1_filename);
+			img2 = imread(img2_filename);
 		} 
 		else
 		{
-			lfCam >> img1;//从左摄像头导入图像
-			riCam >> img2;//从右摄像头导入图像
+			lfCam >> img1;
+			riCam >> img2;
 		}
 
 		//////////////////////////////////////////////////////////////////////////
 		// 读取双目校正变换参数
 		if( optMatch.useStereoRectify )
 		{
-			// 打开摄像头定标参数文件
 			vector<CStringA> xmlFiles;
 			xmlFiles = DoSelectFiles(
 				_T("*.xml"), 
@@ -1482,10 +1288,10 @@ void CStereoVisionDlg::OnBnClk_DoCompDisp()
 				errMsg = _T("没有选中有效的摄像头定标参数文件!");			
 				throw errMsg;
 			}
-			xmlPath = xmlFiles[0];			// 获取xml文件路径
+			xmlPath = xmlFiles[0];			
 			xml_filename = xmlPath;
 
-			// 读入摄像头定标参数
+			
 			switch (m_stereoMatcher.init(img1.cols, img1.rows, xml_filename))
 			{
 			case 0:
@@ -1514,7 +1320,7 @@ void CStereoVisionDlg::OnBnClk_DoCompDisp()
 		m_stereoMatcher.m_BM.state->disp12MaxDiff = m_nDisp12MaxDiff;
 		m_stereoMatcher.m_SGBM.disp12MaxDiff = m_nDisp12MaxDiff;
 
-		int frameCount = 0;	//图像计数
+		int frameCount = 0;
 		PointCloudAnalyzer pointCloudAnalyzer;
 		clock_t tShowObjInfo = clock(), tStart, tPerFrame;
         CStringA strPerFrame;
@@ -1534,82 +1340,60 @@ void CStereoVisionDlg::OnBnClk_DoCompDisp()
 				::DispatchMessage(&msg);
 			}
 
-			// 载入图像
+			
 			if (optMatch.readLocalImage)
 			{
-				if (frameCount >= MIN(imgFiles1.size(), imgFiles2.size()))//如果图像计数大于两个视图分别载入的图片数则退出
+				if (frameCount >= MIN(imgFiles1.size(), imgFiles2.size()))
 					break;
 				img1_filename = imgFiles1[frameCount];
 				img2_filename = imgFiles2[frameCount];
 				img1 = imread(img1_filename, 1);
 				img2 = imread(img2_filename, 1);
 				if(img1.empty() || img2.empty()) break;
-				frameCount++;//每载入一次图像计数frameCount加1
+				frameCount++;
 			} 
-			else//从摄像头载入图像
+			else
 			{
 				lfCam >> img1;
 				riCam >> img2;
 				if(img1.empty()) break;
 			}
 
-			
-			//imshow("left",img1);
-
-
-			// 预处理
+		
 			if (m_ProcMethod)
 			{
-				DoFrameProc(img1, img1);//对帧图像进行处理
-				DoFrameProc(img2, img2);//对帧图像进行处理
+				DoFrameProc(img1, img1);
+				DoFrameProc(img2, img2);
 			}
 
-			// 执行双目匹配
-			if (optMatch.stereoMethod == STEREO_BM)//BM匹配
-			{
-				DoUpdateStateBM();//更新 BM 求解器状态参数
-				m_stereoMatcher.bmMatch(img1, img2, disp, img1p, img2p);
-			} 
-			else if (optMatch.stereoMethod == STEREO_SGBM)//SGBM匹配
-			{
-				DoUpdateStateSGBM(img1.channels());//更新 SGBM 求解器状态参数
-				m_stereoMatcher.sgbmMatch(img1, img2, disp, img1p, img2p);
-			}
-			else//Var匹配
-			{
-				DoUpdateStateVAR();//更新 VAR 求解器状态参数
-				m_stereoMatcher.varMatch(img1, img2, disp, img1p, img2p);
-			}
-
-			//imshow("disp",disp);
-
-			// 画出等距的若干条横线，以比对 行对准 情况
+		
+			
+			DoUpdateStateBM();
+			m_stereoMatcher.bmMatch(img1, img2, disp, img1p, img2p);
+			
+			
+		
 			for( j = 0; j < img1p.rows; j += 32 )		
 			{
 				line( img1p, cvPoint(0,j),	cvPoint(img1p.cols,j), CV_RGB(0,255,0)); 
 				line( img2p, cvPoint(0,j),	cvPoint(img2p.cols,j), CV_RGB(0,255,0)); 
 			}
 
-			// 检测离摄像头最近的物体
-			// 目前只有BM和SGBM两种算法可以检测离摄像头最近的物体
-			if ( optMatch.generatePointCloud &&((optMatch.stereoMethod == STEREO_SGBM)||(optMatch.stereoMethod == STEREO_BM)))
+		
+			if ( optMatch.generatePointCloud )
 			{
-				m_stereoMatcher.getPointClouds(disp, pointCloud);//计算三维点云
+				m_stereoMatcher.getPointClouds(disp, pointCloud);
 
 				vector<PointCloudAnalyzer::ObjectInfo> objectInfos;
-				pointCloudAnalyzer.detectNearObject(img1p, pointCloud, objectInfos);//检测近距目标，输出目标信息序列
+				pointCloudAnalyzer.detectNearObject(img1p, pointCloud, objectInfos);
 
-				if (!objectInfos.empty() && (clock()-tShowObjInfo) > 500)//如果对象信息不为空
+				if (!objectInfos.empty() && (clock()-tShowObjInfo) > 500)
 				{
 					tShowObjInfo = clock();
 					double fl = m_stereoMatcher.m_FL;
-					//在控件上显示距离最近的物体的距离信息
 					m_ObjectDistance = objectInfos[0].distance; m_ObjectDistance = (int)(m_ObjectDistance * 10000) / 10000.;
-					//在控件上显示距离最近的物体的高度信息
 					m_ObjectHeight = objectInfos[0].boundRect.height * objectInfos[0].distance / fl; m_ObjectHeight = (int)(m_ObjectHeight * 10000) / 10000.;
-					//在控件上显示距离最近的物体的距离信息
 					m_ObjectWidth = objectInfos[0].boundRect.width * objectInfos[0].distance / fl; m_ObjectWidth = (int)(m_ObjectWidth * 10000) / 10000.;
-					//在控件上显示距离最近的物体的深度信息
 					m_ObjectDisparity = disp.at<short>(objectInfos[0].nearest) / 16.;
                     UpdateData(FALSE);
 				}
@@ -1618,27 +1402,27 @@ void CStereoVisionDlg::OnBnClk_DoCompDisp()
             tPerFrame = clock() - tStart;
             strPerFrame.Format("（每帧 %d ms）", tPerFrame);
 
-			// 切换视差图/视场图
+			
             UpdateData(TRUE);
-            m_stereoMatcher.setViewField(m_nViewWidth, m_nViewHeight, m_nViewDepth);//设置视场范围
-            m_nID_RAD = GetCheckedRadioButton(IDC_RAD_ColorDisp, IDC_RAD_SideView);//响应按钮
+            m_stereoMatcher.setViewField(m_nViewWidth, m_nViewHeight, m_nViewDepth);
+            m_nID_RAD = GetCheckedRadioButton(IDC_RAD_ColorDisp, IDC_RAD_SideView);
             switch ( m_nID_RAD )
             {
             case IDC_RAD_ColorDisp:
                 m_stereoMatcher.getDisparityImage(disp, disp8u, true);
-                GetDlgItem(IDC_STATIC_DispView)->SetWindowText(_T("彩色视差图") + CStringW(strPerFrame));//响应该视图的信息
+                GetDlgItem(IDC_STATIC_DispView)->SetWindowText(_T("彩色视差图") + CStringW(strPerFrame));
                 break;
             case IDC_RAD_GrayDisp:
                 m_stereoMatcher.getDisparityImage(disp, disp8u, false);
-                GetDlgItem(IDC_STATIC_DispView)->SetWindowText(_T("灰度视差图") + CStringW(strPerFrame));//响应该视图的信息
+                GetDlgItem(IDC_STATIC_DispView)->SetWindowText(_T("灰度视差图") + CStringW(strPerFrame));
                 break;
             case IDC_RAD_TopDownView:
-                if ( optMatch.generatePointCloud )//如果生成三维点云
+                if ( optMatch.generatePointCloud )
                 {
                     m_stereoMatcher.getTopDownView(pointCloud, disp8u, img1);
-                    GetDlgItem(IDC_STATIC_DispView)->SetWindowText(_T("环境俯视图") + CStringW(strPerFrame));//响应该视图的信息
+                    GetDlgItem(IDC_STATIC_DispView)->SetWindowText(_T("环境俯视图") + CStringW(strPerFrame));
                 }
-                else//如果不生成三维点云
+                else
                 {
                     CheckRadioButton(IDC_RAD_ColorDisp, IDC_RAD_SideView, IDC_RAD_ColorDisp);			// 默认显示彩色视差图
                     m_stereoMatcher.getDisparityImage(disp, disp8u, true);
@@ -1648,7 +1432,7 @@ void CStereoVisionDlg::OnBnClk_DoCompDisp()
                 if ( optMatch.generatePointCloud )
                 {
                     m_stereoMatcher.getSideView(pointCloud, disp8u, img1);
-                    GetDlgItem(IDC_STATIC_DispView)->SetWindowText(_T("环境侧视图") + CStringW(strPerFrame));//响应该视图的信息
+                    GetDlgItem(IDC_STATIC_DispView)->SetWindowText(_T("环境侧视图") + CStringW(strPerFrame));
                 }
                 else
                 {
@@ -1666,28 +1450,27 @@ void CStereoVisionDlg::OnBnClk_DoCompDisp()
 			F_ShowImage( img2p, m_riImage, IDC_PicRiCam );
 			F_ShowImage( disp8u, m_disparity, IDC_PicSynImg );	
 
-			// 保存画面和视差图像
+		
 			if( optMatch.saveResults )
-				F_Saveframe( img1, img2, disp);//将视差图像保存在本地
+				F_Saveframe( img1, img2, disp);
 
-			if( optMatch.delayEachFrame )//如有选中了视差延时的话
+			if( optMatch.delayEachFrame )
 				Sleep(m_nDelayTime * 1000);
 		}
 
-		// 保存最后一帧景深图像的点云数据
+	
 		if ( optMatch.generatePointCloud )
 		{
             CStringA filePath(m_workDir);
             filePath.AppendFormat("PointsClouds.txt");
 			m_stereoMatcher.savePointClouds(pointCloud, filePath.GetBuffer(0));
-            filePath.ReleaseBuffer();//释放内存
+            filePath.ReleaseBuffer();
 		}
 
-		// 对图像数据清零
 		m_disparity = Scalar(0);
         F_ShowImage( m_disparity, m_disparity, IDC_PicSynImg );
 
-		// 释放内存
+	
 		xmlPath.ReleaseBuffer();
 	}
 	catch (LPCTSTR ErrMsg)
@@ -1706,8 +1489,6 @@ void CStereoVisionDlg::OnBnClk_DoCompDisp()
 		AfxMessageBox(_T("发生未知错误！"));
 	}
 
-	GetDlgItem(IDC_RAD_BM)->EnableWindow(TRUE);
-	GetDlgItem(IDC_RAD_SGBM)->EnableWindow(TRUE);
 	GetDlgItem(IDC_BN2StopCam)->EnableWindow(TRUE);
 	GetDlgItem(IDC_BN_CompDisp)->EnableWindow(TRUE);
 	GetDlgItem(IDC_BN2StereoCalib)->EnableWindow(TRUE);
@@ -1715,25 +1496,17 @@ void CStereoVisionDlg::OnBnClk_DoCompDisp()
     GetDlgItem(IDC_BN_StopDispComp)->EnableWindow(FALSE);
     GetDlgItem(IDC_STATIC_DispView)->SetWindowText(_T("视差图"));
 
-	// 返回显示实时画面
+
 	DoShowOrigFrame();
 	return;
 }
 
 
-/**----------------------------
- * 功能 : 停止计算视差，返回正常显示
- *----------------------------
- * 函数 : CStereoVisionDlg::OnBnClk_StopDispComp
- * 访问 : private 
- * 返回 : void
- *
- */
+
 void CStereoVisionDlg::OnBnClk_StopDispComp()
 {
 	// TODO: Add your control notification handler code here
 
-	// 发送退出消息
 	::PostMessage(this->m_hWnd, WM_QUIT, 0, 0);
 	GetDlgItem(IDC_BN_StopDispComp)->EnableWindow(FALSE);
 
@@ -1743,79 +1516,32 @@ void CStereoVisionDlg::OnBnClk_StopDispComp()
 		GetDlgItem(IDC_BN2StopCam)->EnableWindow(TRUE);
 		GetDlgItem(IDC_BN2StereoCalib)->EnableWindow(TRUE);
 		GetDlgItem(IDC_BN_CompDisp)->EnableWindow(TRUE);
-		GetDlgItem(IDC_RAD_BM)->EnableWindow(TRUE);
-		GetDlgItem(IDC_RAD_SGBM)->EnableWindow(TRUE);
 	}
 
 	return;
 }
 
 
-/**----------------------------
- * 功能 : 设置双目匹配算法的默认参数
- *----------------------------
- * 函数 : CStereoVisionDlg::OnBnClkDefaultStereoParam
- * 访问 : private 
- * 返回 : void
- *
- */
+
 void CStereoVisionDlg::OnBnClkDefaultStereoParam()
 {
 	// TODO: Add your control notification handler code here
-	m_nID_RAD = GetCheckedRadioButton(IDC_RAD_BM, IDC_RAD_VAR);
-	if (m_nID_RAD == IDC_RAD_BM)//BM算法参数设定
-	{
-		m_nMinDisp = 0;	
-		m_nNumDisp = 64;
-		m_nSADWinSiz = 19;
-		m_nTextThres = 10;
-		m_nDisp12MaxDiff = -1;
-		m_nPreFiltCap = 31;
-		m_nUniqRatio = 25;
-		m_nSpeckRange = 32;
-		m_nSpeckWinSiz = 100;
-	} 
-	else if(m_nID_RAD == IDC_RAD_SGBM)//SGBM算法参数设定
-	{
-		m_nMinDisp = 0;	
-		m_nNumDisp = 64;
-		m_nSADWinSiz = 7;
-		m_nDisp12MaxDiff = -1;
-		m_nPreFiltCap = 63;
-		m_nUniqRatio = 25;
-		m_nSpeckRange = 32;
-		m_nSpeckWinSiz = 100;
-		m_pCheck = (CButton*)GetDlgItem(IDC_CHK_fullDP);
-		m_pCheck->SetCheck(0);
-	}
-	else if (m_nID_RAD == IDC_RAD_VAR)//SGBM算法参数设定
-	{
-		m_nMinDisp = -64;
-		m_nNumDisp = 64;
 
-		m_stereoMatcher.m_VAR.levels = 3;                                 // ignored with USE_AUTO_PARAMS
-		m_stereoMatcher.m_VAR.pyrScale = 0.5;                             // ignored with USE_AUTO_PARAMS
-		m_stereoMatcher.m_VAR.nIt = 25;
-		m_stereoMatcher.m_VAR.poly_n = 3;
-		m_stereoMatcher.m_VAR.poly_sigma = 0.0;
-		m_stereoMatcher.m_VAR.fi = 15.0f;
-		m_stereoMatcher.m_VAR.lambda = 0.03f;
-		m_stereoMatcher.m_VAR.penalization = m_stereoMatcher.m_VAR.PENALIZATION_TICHONOV;   // ignored with USE_AUTO_PARAMS
-		m_stereoMatcher.m_VAR.cycle = m_stereoMatcher.m_VAR.CYCLE_V;                        // ignored with USE_AUTO_PARAMS
-		m_stereoMatcher.m_VAR.flags = m_stereoMatcher.m_VAR.USE_SMART_ID | m_stereoMatcher.m_VAR.USE_AUTO_PARAMS | m_stereoMatcher.m_VAR.USE_INITIAL_DISPARITY | m_stereoMatcher.m_VAR.USE_MEDIAN_FILTERING ;
-	}
+	
+	m_nMinDisp = 0;	
+	m_nNumDisp = 64;
+	m_nSADWinSiz = 19;
+	m_nTextThres = 10;
+	m_nDisp12MaxDiff = -1;
+	m_nPreFiltCap = 31;
+	m_nUniqRatio = 25;
+	m_nSpeckRange = 32;
+	m_nSpeckWinSiz = 100;
+	
 	UpdateData(FALSE);
 }
 
 
-/**----------------------------
- * 功能 : 设置双目匹配算法的默认参数
- *----------------------------
- * 函数 : CStereoVisionDlg::OnBnClkDefaultViewfield
- * 访问 : private 
- * 返回 : void
- *
- */
 void CStereoVisionDlg::OnBnClkDefaultViewfield()
 {
     // TODO: 在此添加控件通知处理程序代码
@@ -1826,15 +1552,6 @@ void CStereoVisionDlg::OnBnClkDefaultViewfield()
 }
 
 
-/**----------------------------
- * 功能 : 对已有的双目匹配参数清零
- *----------------------------
- * 函数 : CStereoVisionDlg::DoClearParamsOfStereoMatch
- * 访问 : private 
- * 返回 : void
- *
- * 参数 : void
- */
 void CStereoVisionDlg::DoClearParamsOfStereoMatch(void)
 {
 	m_nMinDisp = 0;	
@@ -1853,110 +1570,7 @@ void CStereoVisionDlg::DoClearParamsOfStereoMatch(void)
 }
 
 
-/**----------------------------
- * 功能 : 点击选择 BM 算法，已有参数清零，使能相关控件
- *----------------------------
- * 函数 : CStereoVisionDlg::OnBnClkRad_BM
- * 访问 : private 
- * 返回 : void
- *
- */
-void CStereoVisionDlg::OnBnClkRad_BM()
-{
-	// TODO: Add your control notification handler code here
-	DoClearParamsOfStereoMatch();
-	m_spinPreFiltCap.SetRange(0, 31);
-	GetDlgItem(IDC_EDIT_minDisp)->EnableWindow(TRUE);
-	GetDlgItem(IDC_EDIT_maxDisp)->EnableWindow(TRUE);
-	GetDlgItem(IDC_EDIT_SADWinSiz)->EnableWindow(TRUE);
-	GetDlgItem(IDC_EDIT_textThres)->EnableWindow(TRUE);
-	GetDlgItem(IDC_EDIT_disp12MaxDiff)->EnableWindow(FALSE);
-	GetDlgItem(IDC_EDIT_preFiltCap)->EnableWindow(TRUE);
-	GetDlgItem(IDC_EDIT_uniqRatio)->EnableWindow(TRUE);
-	GetDlgItem(IDC_EDIT_speckRange)->EnableWindow(TRUE);
-	GetDlgItem(IDC_EDIT_speckWinSiz)->EnableWindow(TRUE);
-	GetDlgItem(IDC_CHK_fullDP)->EnableWindow(FALSE);
-	CButton* rad;
-	rad = (CButton*)GetDlgItem(IDC_RAD_VAR);
-	rad->SetCheck(FALSE);
 
-	OnBnClkDefaultStereoParam();
-}
-
-
-/**----------------------------
- * 功能 : 点击选择 SGBM 算法，已有参数清零，使能相关控件
- *----------------------------
- * 函数 : CStereoVisionDlg::OnBnClkRad_SGBM
- * 访问 : private 
- * 返回 : void
- *
- */
-void CStereoVisionDlg::OnBnClkRad_SGBM()
-{
-	// TODO: Add your control notification handler code here
-	DoClearParamsOfStereoMatch();
-	m_spinPreFiltCap.SetRange(0, 100);
-	GetDlgItem(IDC_EDIT_minDisp)->EnableWindow(TRUE);
-	GetDlgItem(IDC_EDIT_maxDisp)->EnableWindow(TRUE);
-	GetDlgItem(IDC_EDIT_SADWinSiz)->EnableWindow(TRUE);
-	GetDlgItem(IDC_EDIT_textThres)->EnableWindow(FALSE);
-	GetDlgItem(IDC_EDIT_disp12MaxDiff)->EnableWindow(FALSE);
-	GetDlgItem(IDC_EDIT_preFiltCap)->EnableWindow(TRUE);
-	GetDlgItem(IDC_EDIT_uniqRatio)->EnableWindow(TRUE);
-	GetDlgItem(IDC_EDIT_speckRange)->EnableWindow(TRUE);
-	GetDlgItem(IDC_EDIT_speckWinSiz)->EnableWindow(TRUE);
-	GetDlgItem(IDC_CHK_fullDP)->EnableWindow(TRUE);
-	CButton* rad;
-	rad = (CButton*)GetDlgItem(IDC_RAD_VAR);
-	rad->SetCheck(FALSE);
-
-	OnBnClkDefaultStereoParam();
-}
-
-/**----------------------------
- * 功能 : 点击选择 VAR 算法，已有参数清零，使能相关控件
- *----------------------------
- * 函数 : CStereoVisionDlg::OnBnClkRad_VAR
- * 访问 : private 
- * 返回 : void
- *
- */
-void CStereoVisionDlg::OnBnClkRad_VAR()
-{
-	// TODO: 在此添加控件通知处理程序代码
-	DoClearParamsOfStereoMatch();
-	m_spinPreFiltCap.SetRange(0, 100);
-	GetDlgItem(IDC_EDIT_minDisp)->EnableWindow(TRUE);
-	GetDlgItem(IDC_EDIT_maxDisp)->EnableWindow(TRUE);
-	GetDlgItem(IDC_EDIT_SADWinSiz)->EnableWindow(FALSE);
-	GetDlgItem(IDC_EDIT_textThres)->EnableWindow(FALSE);
-	GetDlgItem(IDC_EDIT_disp12MaxDiff)->EnableWindow(FALSE);
-	GetDlgItem(IDC_EDIT_preFiltCap)->EnableWindow(FALSE);
-	GetDlgItem(IDC_EDIT_uniqRatio)->EnableWindow(FALSE);
-	GetDlgItem(IDC_EDIT_speckRange)->EnableWindow(FALSE);
-	GetDlgItem(IDC_EDIT_speckWinSiz)->EnableWindow(FALSE);
-	GetDlgItem(IDC_CHK_fullDP)->EnableWindow(FALSE);
-	CButton* rad;
-	rad = (CButton*)GetDlgItem(IDC_RAD_BM);
-	rad->SetCheck(FALSE);
-	rad = (CButton*)GetDlgItem(IDC_RAD_SGBM);
-	rad->SetCheck(FALSE);
-
-	OnBnClkDefaultStereoParam();
-}
-
-
-/**----------------------------
- * 功能 : 设置最大视差值的旋转按钮  响应程序
- *----------------------------
- * 函数 : CStereoVisionDlg::OnDeltaposSpin_MaxDisp
- * 访问 : private 
- * 返回 : void
- *
- * 参数 : NMHDR * pNMHDR
- * 参数 : LRESULT * pResult
- */
 void CStereoVisionDlg::OnDeltaposSpin_MaxDisp(NMHDR *pNMHDR, LRESULT *pResult)
 {
 	LPNMUPDOWN pNMUpDown = reinterpret_cast<LPNMUPDOWN>(pNMHDR);
@@ -1975,99 +1589,47 @@ void CStereoVisionDlg::OnDeltaposSpin_MaxDisp(NMHDR *pNMHDR, LRESULT *pResult)
 }
 
 
-/**----------------------------
- * 功能 : 设置SAD窗口大小的旋转按钮  响应程序
- *----------------------------
- * 函数 : CStereoVisionDlg::OnDeltaposSpin_SADWinSiz
- * 访问 : private 
- * 返回 : void
- *
- * 参数 : NMHDR * pNMHDR
- * 参数 : LRESULT * pResult
- */
+
 void CStereoVisionDlg::OnDeltaposSpin_SADWinSiz(NMHDR *pNMHDR, LRESULT *pResult)
 {
 	LPNMUPDOWN pNMUpDown = reinterpret_cast<LPNMUPDOWN>(pNMHDR);
 	// TODO: Add your control notification handler code here
 	*pResult = 0;
 
-	m_nID_RAD = GetCheckedRadioButton(IDC_RAD_BM, IDC_RAD_VAR);
-	if (m_nID_RAD == IDC_RAD_BM)
-	{
-		UpdateData(TRUE);
-		m_nSADWinSiz += (int)pNMUpDown->iDelta * 2; 
-		if(m_nSADWinSiz % 2 == 0)
-			m_nSADWinSiz += 1;
-		if(m_nSADWinSiz < 5)
-			m_nSADWinSiz = 5;
-		if(m_nSADWinSiz > 21)
-			m_nSADWinSiz = 21;
-		UpdateData(FALSE);
-	}
-	else if (m_nID_RAD == IDC_RAD_SGBM)
-	{
-		UpdateData(TRUE);
-		m_nSADWinSiz += (int)pNMUpDown->iDelta * 2;
-		if(m_nSADWinSiz % 2 == 0)
-			m_nSADWinSiz += 1;
-		if(m_nSADWinSiz < 1)
-			m_nSADWinSiz = 1;
-		if(m_nSADWinSiz > 11)
-			m_nSADWinSiz = 11;
-		UpdateData(FALSE);
-	}
+
+
+	UpdateData(TRUE);
+	m_nSADWinSiz += (int)pNMUpDown->iDelta * 2;
+	if (m_nSADWinSiz % 2 == 0)
+		m_nSADWinSiz += 1;
+	if (m_nSADWinSiz < 5)
+		m_nSADWinSiz = 5;
+	if (m_nSADWinSiz > 21)
+		m_nSADWinSiz = 21;
+	UpdateData(FALSE);
+
 }
 
 
-/**----------------------------
- * 功能 : 设置SpeckRange值的旋转按钮  响应程序
- *----------------------------
- * 函数 : CStereoVisionDlg::OnDeltaposSpin_SpeckRange
- * 访问 : private 
- * 返回 : void
- *
- * 参数 : NMHDR * pNMHDR
- * 参数 : LRESULT * pResult
- */
+
 void CStereoVisionDlg::OnDeltaposSpin_SpeckRange(NMHDR *pNMHDR, LRESULT *pResult)
 {
 	LPNMUPDOWN pNMUpDown = reinterpret_cast<LPNMUPDOWN>(pNMHDR);
 	// TODO: Add your control notification handler code here
 	*pResult = 0;
-	m_nID_RAD = GetCheckedRadioButton(IDC_RAD_BM, IDC_RAD_VAR);
-	if (m_nID_RAD == IDC_RAD_BM)
-	{
-		UpdateData(TRUE);
-		m_nSpeckRange += (int)pNMUpDown->iDelta;
-		if(m_nSpeckRange < 0)
-			m_nSpeckRange = 0;
-		if(m_nSpeckRange > 64)
-			m_nSpeckRange = 64;
-		UpdateData(FALSE);
-	}
-	else if (m_nID_RAD == IDC_RAD_SGBM)
-	{
-		UpdateData(TRUE);
-		m_nSpeckRange += (int)pNMUpDown->iDelta * 16;
-		if(m_nSpeckRange < 0)
-			m_nSpeckRange = 0;
-		if(m_nSpeckRange > 64)
-			m_nSpeckRange = 64;
-		UpdateData(FALSE);
-	}
+
+	UpdateData(TRUE);
+	m_nSpeckRange += (int)pNMUpDown->iDelta;
+	if (m_nSpeckRange < 0)
+		m_nSpeckRange = 0;
+	if (m_nSpeckRange > 64)
+		m_nSpeckRange = 64;
+	UpdateData(FALSE);
+	
 }
 
 
-/**----------------------------
- * 功能 : 设置 视场宽度的旋转按钮  响应程序
- *----------------------------
- * 函数 : CStereoVisionDlg::OnDeltaposSpin_ViewWidth
- * 访问 : private 
- * 返回 : void
- *
- * 参数 : NMHDR * pNMHDR
- * 参数 : LRESULT * pResult
- */
+
 void CStereoVisionDlg::OnDeltaposSpin_ViewWidth(NMHDR *pNMHDR, LRESULT *pResult)
 {
 	LPNMUPDOWN pNMUpDown = reinterpret_cast<LPNMUPDOWN>(pNMHDR);
@@ -2086,16 +1648,7 @@ void CStereoVisionDlg::OnDeltaposSpin_ViewWidth(NMHDR *pNMHDR, LRESULT *pResult)
 }
 
 
-/**----------------------------
- * 功能 : 设置 视场高度的旋转按钮  响应程序
- *----------------------------
- * 函数 : CStereoVisionDlg::OnDeltaposSpin_ViewHeight
- * 访问 : private 
- * 返回 : void
- *
- * 参数 : NMHDR * pNMHDR
- * 参数 : LRESULT * pResult
- */
+
 void CStereoVisionDlg::OnDeltaposSpin_ViewHeight(NMHDR *pNMHDR, LRESULT *pResult)
 {
 	LPNMUPDOWN pNMUpDown = reinterpret_cast<LPNMUPDOWN>(pNMHDR);
@@ -2114,16 +1667,7 @@ void CStereoVisionDlg::OnDeltaposSpin_ViewHeight(NMHDR *pNMHDR, LRESULT *pResult
 }
 
 
-/**----------------------------
- * 功能 : 设置 视场深度的旋转按钮  响应程序
- *----------------------------
- * 函数 : CStereoVisionDlg::OnDeltaposSpin_ViewDepth
- * 访问 : private 
- * 返回 : void
- *
- * 参数 : NMHDR * pNMHDR
- * 参数 : LRESULT * pResult
- */
+
 void CStereoVisionDlg::OnDeltaposSpin_ViewDepth(NMHDR *pNMHDR, LRESULT *pResult)
 {
 	LPNMUPDOWN pNMUpDown = reinterpret_cast<LPNMUPDOWN>(pNMHDR);
@@ -2143,13 +1687,7 @@ void CStereoVisionDlg::OnDeltaposSpin_ViewDepth(NMHDR *pNMHDR, LRESULT *pResult)
 
 
 //////////////////////////////////////////////////////////////////////////
-/**----------------------------------
- * 功能 :	初始化（创建）程序运行所需的文件夹
- *----------------------------------
- * 函数 :	CStereoVisionDlg::F_InitWorkDir
- * 访问 :	private 
- * 返回 :	程序运行时所在的文件夹路径
- */
+
 CString CStereoVisionDlg::F_InitWorkDir()
 {
 	CStringA strPath;
@@ -2176,16 +1714,7 @@ CString CStereoVisionDlg::F_InitWorkDir()
 
 
 //////////////////////////////////////////////////////////////////////////
-/**----------------------------------
- * 功能 : 检查文件夹是否存在
- *----------------------------------
- * 函数 : CStereoVisionDlg::CheckDir
- * 访问 : private 
- * 返回 : 1 - 文件夹存在；0 - 不存在
- *
- * 参数 : dir		[in]	文件夹路径
- * 参数 : creatDir	[in]	是否创建文件夹
- */
+
 bool CStereoVisionDlg::F_CheckDir(const string dir, bool creatDir /* = false */)
 {
 	bool RetVal = false;
@@ -2216,18 +1745,7 @@ bool CStereoVisionDlg::F_CheckDir(const string dir, bool creatDir /* = false */)
 }
 
 
-/**----------------------------
- * 功能 : 显示图像
- *		 将要绘制的图像 src 复制到 des，然后绘制到控件号为 ID 的 Picture 控件
- *----------------------------
- * 函数 : CStereoVisionDlg::F_ShowImage
- * 访问 : private 
- * 返回 : void
- *
- * 参数 : src	[in]	待显示图像
- * 参数 : des	[in]	窗口图像
- * 参数 : ID		[in]	图像窗口控件ID
- */
+
 void CStereoVisionDlg::F_ShowImage(Mat& src, Mat& des, UINT ID)
 {
 	if (src.empty())
@@ -2237,62 +1755,50 @@ void CStereoVisionDlg::F_ShowImage(Mat& src, Mat& des, UINT ID)
 
     des = Scalar::all(0);
 
-    // 计算将图片缩放到 Image 区域所需的比例因子
+    
     double wRatio = des.cols / (double)src.cols;
     double hRatio = des.rows / (double)src.rows;
     double srcWH = src.cols / (double)src.rows;
     double desWH = des.cols / (double)des.rows;
     double scale = srcWH > desWH ? wRatio : hRatio;
 
-    // 缩放后图片的宽和高
+ 
     int nw = (int)( src.cols * scale );
     int nh = (int)( src.rows * scale );
 
-    // 为了将缩放后的图片存入 des 的正中部位，需计算图片在 des 左上角的期望坐标值
+  
     int tlx = (int)((des.cols - nw) / 2);
     int tly = (int)((des.rows - nh) / 2);
 
-    // 设置 des 的 ROI 区域，用来存入图片 img
+  
     Mat desRoi = des(Rect(tlx, tly, nw, nh));
 
-	// 如果src是单通道图像，则转换为三通道图像
+	
 	if (src.channels() == 1)
 	{
 		Mat src_c;
 		cvtColor(src, src_c, CV_GRAY2BGR);
-		// 对图片 src_t 进行缩放，并存入到 des 中
+		
 		resize(src_c, desRoi, desRoi.size());
 	}
 	else
 	{
-		// 对图片 src 进行缩放，并存入到 des 中
+	
 		resize( src, desRoi, desRoi.size() );
 	}
 
-	CDC* pDC = GetDlgItem( ID ) ->GetDC();		// 获得显示控件的 DC
-	HDC hDC = pDC ->GetSafeHdc();				// 获取 HDC(设备句柄) 来进行绘图操作
+	CDC* pDC = GetDlgItem( ID ) ->GetDC();		
+	HDC hDC = pDC ->GetSafeHdc();				
 	CRect rect;
-	GetDlgItem(ID) ->GetClientRect( &rect );	// 获取控件尺寸位置
+	GetDlgItem(ID) ->GetClientRect( &rect );	
 	CvvImage cimg;
 	IplImage cpy = des;
-	cimg.CopyOf( &cpy );						// 复制图片
-	cimg.DrawToHDC( hDC, &rect );				// 将图片绘制到显示控件的指定区域内
+	cimg.CopyOf( &cpy );						
+	cimg.DrawToHDC( hDC, &rect );				
 	ReleaseDC( pDC );
 }
 
 
-/**----------------------------
- * 功能 : 保存当前的立体匹配结果至本地
- *		包括左右视图、视差图和视差数据
- *----------------------------
- * 函数 : CStereoVisionDlg::F_Saveframe
- * 访问 : private 
- * 返回 : void
- *
- * 参数 : Mat & lfImg
- * 参数 : Mat & riImg
- * 参数 : Mat & lfDisp
- */
 void CStereoVisionDlg::F_Saveframe(Mat& lfImg, Mat&riImg, Mat& lfDisp)
 {
 	// TODO: Add your control notification handler code here
@@ -2337,52 +1843,29 @@ void CStereoVisionDlg::F_Saveframe(Mat& lfImg, Mat&riImg, Mat& lfDisp)
 }
 
 
-/**----------------------------
- * 功能 : 边缘检测
- *		 将原图像 src 执行 Canny 边缘检测，输出至图像 des
- *----------------------------
- * 函数 : CStereoVisionDlg::F_EdgeDetectCanny
- * 访问 : private 
- * 返回 : void
- *
- * 参数 : src	[in]	源图像
- * 参数 : des	[out]	边缘图像
- */
 void CStereoVisionDlg::F_EdgeDetectCanny(Mat& src, Mat& des)
 {
 	Mat gray, edge, edge8u;
 
-	edge = cv::Mat(src.size(), CV_16S);//得到边缘图像矩阵
+	edge = cv::Mat(src.size(), CV_16S);
 
-	// 将源图像转为灰度图像
-	if (src.channels() == 1)//如果只是单通道的
+	if (src.channels() == 1)
 		src.copyTo(gray);
 	else
 		cvtColor( src, gray, CV_RGB2GRAY );
 
-	// 边缘检测
 	Sobel(gray, edge, CV_16S, 0, 1);
-	edge.convertTo(edge8u, CV_8U);//将边缘检测图像转换为八位
+	edge.convertTo(edge8u, CV_8U);
 
-	// 将边缘检测图像转至输出图像格式
 	if(des.channels() == 1)
 		edge8u.copyTo(des);
 	else
-		cvtColor( edge8u, des, CV_GRAY2BGR );//灰度化转换为彩色图
+		cvtColor( edge8u, des, CV_GRAY2BGR );	
 }
 
 
-/**----------------------------
- * 功能 : 显示摄像头实时画面
- *----------------------------
- * 函数 : CStereoVisionDlg::DoShowOrigFrame
- * 访问 : private 
- * 返回 : void
- *
- */
 void CStereoVisionDlg::DoShowOrigFrame(void)
 {
-	// 对图像数据清零
 	m_lfImage = Scalar(0);
 	F_ShowImage( m_lfImage, m_lfImage, IDC_PicLfCam );
 
@@ -2391,46 +1874,33 @@ void CStereoVisionDlg::DoShowOrigFrame(void)
 
 	m_CBNMethodList.SetCurSel(0);
 	m_ProcMethod = SHOW_ORIGINAL_FRAME;
-	SetTimer(1, 50, NULL);	// 50ms 定时显示
+	SetTimer(1, 50, NULL);	
 }
 
 
-/**----------------------------
- * 功能 : 对帧图像进行处理
- *----------------------------
- * 函数 : CStereoVisionDlg::DoFrameProc
- * 访问 : private 
- * 返回 : void
- *
- * 参数 : src	[in]	源图像
- * 参数 : des	[out]	处理后图像
- */
 void  CStereoVisionDlg::DoFrameProc(Mat& src, Mat& dst)
 {
 	try
 	{
 		switch( m_ProcMethod )
 		{
-		case SHOW_EDGE_IMAGE://边缘检测
+		case SHOW_EDGE_IMAGE:
 			{
 				F_EdgeDetectCanny(src, dst);
 			}
 			break;
-		case SHOW_EQUAL_HISTOGRAM://直方图均衡  
+		case SHOW_EQUAL_HISTOGRAM:
 			{
 				vector<Mat> rgb;
-				// 分解各个分量
 				split(src, rgb);
-				// 对各个分量依次进行直方图均衡
 				for (int i=0;i<3;i++)
 				{
 					equalizeHist(rgb[i], rgb[i]);
 				}
-				// 合并各分量
 				merge(rgb, dst);
 			}
 			break;
-		case SHOW_CONVERT_COLOR://色彩空间变换
+		case SHOW_CONVERT_COLOR:
 			{
 				m_nID_RAD = GetCheckedRadioButton(IDC_RAD_ToHSV, IDC_RAD_ToXYZ);
 				int type = 

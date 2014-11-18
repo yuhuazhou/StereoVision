@@ -42,18 +42,15 @@ using namespace cv;
 // CStereoVisionDlg dialog
 class CStereoVisionDlg : public CDialog
 {
-// 构造
 public:
 	CStereoVisionDlg(CWnd* pParent = NULL);	// 标准构造函数
 
-// 对话框数据
 	enum { IDD = IDD_ROBOTVISION_DIALOG };
 
 	protected:
 	virtual void DoDataExchange(CDataExchange* pDX);	// DDX/DDV 支持
 
 
-// 实现
 protected:
 	HICON m_hIcon;
 
@@ -66,7 +63,7 @@ protected:
 
 private:
 
-	typedef enum { STEREO_BM, STEREO_SGBM, STEREO_VAR } STEREO_METHOD;
+	typedef enum { STEREO_BM } STEREO_METHOD;
 	typedef enum { CALIB_LOAD_CAMERA_PARAMS, CALIB_SINGLE_CAMERA_FIRST, CALIB_STEREO_CAMERAS_DIRECTLY } CALIB_ORDER;
 	typedef enum { SHOW_ORIGINAL_FRAME, SHOW_EDGE_IMAGE, SHOW_EQUAL_HISTOGRAM, SHOW_CONVERT_COLOR } FRAME_PROCESS_METHOD;
 
@@ -100,8 +97,6 @@ private:
 	/***
 	 *	全局私有变量
 	 */
-	//CCameraDS lfCam;
-	//CCameraDS riCam;
 	VideoCapture lfCam;
 	VideoCapture riCam;
 	cv::Mat m_lfImage;
